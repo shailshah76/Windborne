@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Windborne Constellation Explorer</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div class="top-bar-left">
+                <h1><i class="fas fa-satellite"></i> Windborne Explorer</h1>
+                <span class="last-updated" id="lastUpdated">Loading...</span>
+            </div>
+            <div class="top-bar-right">
+                <button id="refreshBtn" class="material-btn">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-layout">
+            <!-- Left Panel -->
+            <div class="left-panel">
+                <!-- Controls -->
+                <div class="control-panel">
+                    <div class="control-row">
+                        <label class="material-checkbox">
+                            <input type="checkbox" id="showPaths" checked>
+                            <span class="checkmark"></span>
+                            <span class="label">Paths</span>
+                        </label>
+                        <label class="material-checkbox">
+                            <input type="checkbox" id="showConstellation" checked>
+                            <span class="checkmark"></span>
+                            <span class="label">Links</span>
+                        </label>
+                    </div>
+                    <div class="control-row">
+                        <label class="material-checkbox">
+                            <input type="checkbox" id="showWeather" checked>
+                            <span class="checkmark"></span>
+                            <span class="label">Weather</span>
+                        </label>
+                        <label class="material-checkbox">
+                            <input type="checkbox" id="fetchWeather">
+                            <span class="checkmark"></span>
+                            <span class="label">Live Weather</span>
+                        </label>
+                    </div>
+
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-satellite"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalBalloons">-</div>
+                            <div class="stat-label">Balloons</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-wind"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="avgSpeed">-</div>
+                            <div class="stat-label">Avg Speed</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-cloud"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="weatherStations">-</div>
+                            <div class="stat-label">Weather</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="constellationLinks">-</div>
+                            <div class="stat-label">Links</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather Summary -->
+                <div class="weather-summary" id="weatherContent">
+                    <div class="weather-header">
+                        <i class="fas fa-cloud-sun"></i>
+                        <span>Weather Summary</span>
+                    </div>
+                    <div class="weather-data">
+                        <div class="weather-item">
+                            <span class="weather-label">Temperature:</span>
+                            <span class="weather-value" id="avgTemp">-</span>
+                        </div>
+                        <div class="weather-item">
+                            <span class="weather-label">Wind Speed:</span>
+                            <span class="weather-value" id="avgWind">-</span>
+                        </div>
+                        <div class="weather-item">
+                            <span class="weather-label">Pressure:</span>
+                            <span class="weather-value" id="avgPressure">-</span>
+                        </div>
+                        <div class="weather-item">
+                            <span class="weather-label">Humidity:</span>
+                            <span class="weather-value" id="avgHumidity">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map Area -->
+            <div class="map-area">
+                <div id="mapid"></div>
+                <div class="map-legend">
+                    <div class="legend-item">
+                        <span class="legend-dot balloon"></span>
+                        <span>Balloon</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot path"></span>
+                        <span>Path</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot constellation"></span>
+                        <span>Link</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot weather"></span>
+                        <span>Weather</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="right-panel">
+                <!-- Charts -->
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <i class="fas fa-chart-line"></i>
+                        <span>Speed Distribution</span>
+                    </div>
+                    <canvas id="speedChart"></canvas>
+                </div>
+                <div class="chart-container">
+                    <div class="chart-header">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>Weather Conditions</span>
+                    </div>
+                    <canvas id="weatherChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet-rotatedmarker@0.2.0/leaflet.rotatedMarker.js"></script>
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
