@@ -115,16 +115,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 const balloonIcon = L.divIcon({
                     className: 'balloon-marker',
                     html: `<div style="
-                        width: 20px; 
-                        height: 20px; 
+                        width: 14px; 
+                        height: 14px; 
                         background: #e74c3c; 
                         border-radius: 50%; 
-                        border: 3px solid white;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                        border: 2px solid white;
+                        box-shadow: 0 1px 4px rgba(0,0,0,0.3);
                         transform: rotate(${direction}deg);
                     "></div>`,
-                    iconSize: [20, 20],
-                    iconAnchor: [10, 10]
+                    iconSize: [14, 14],
+                    iconAnchor: [7, 7]
                 });
 
                 const marker = L.marker(latestPosition, { icon: balloonIcon }).addTo(mymap);

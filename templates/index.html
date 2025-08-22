@@ -17,11 +17,6 @@
                 <h1><i class="fas fa-satellite"></i> Windborne Explorer</h1>
                 <span class="last-updated" id="lastUpdated">Loading...</span>
             </div>
-            <div class="top-bar-right">
-                <button id="refreshBtn" class="material-btn">
-                    <i class="fas fa-sync-alt"></i>
-                </button>
-            </div>
         </div>
 
         <!-- Main Content -->
@@ -30,6 +25,12 @@
             <div class="left-panel">
                 <!-- Controls -->
                 <div class="control-panel">
+                    <div class="control-header">
+                        <span class="control-title">Controls</span>
+                        <button id="refreshBtn" class="refresh-btn-compact">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
                     <div class="control-row">
                         <label class="material-checkbox">
                             <input type="checkbox" id="showPaths" checked>
@@ -54,7 +55,6 @@
                             <span class="label">Live Weather</span>
                         </label>
                     </div>
-
                 </div>
 
                 <!-- Stats Cards -->
