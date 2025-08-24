@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify, request
 import Data
-import WeatherData
+import AirQualityData
 import math
 from datetime import datetime
 
@@ -141,8 +141,8 @@ def index():
 
 @app.route('/api/data')
 def get_data():
-    # Check if weather data is requested
-    fetch_weather = request.args.get('weather', 'false').lower() == 'true'
+    # Check if air quality data is requested
+    fetch_air_quality = request.args.get('air_quality', 'false').lower() == 'true'
     
     data_24h = Data.get_24h_data()
     tracks = track_balloons(data_24h)
@@ -194,22 +194,28 @@ def get_data():
                 if dist < 500: # 500 km threshold for constellation link
                     constellation_links.append([i, j])
     
-    # Get weather data only if requested
-    weather_data = WeatherData.get_weather_data_for_balloons(balloons_data, fetch_weather)
+    # Get air quality data only if requested
+    air_quality_data = AirQualityData.get_air_quality_for_balloons(balloons_data, fetch_air_quality)
     
     # Analyze flight patterns
     insights = analyze_flight_patterns(balloons_data)
     
+    # Analyze atmospheric conditions if air quality data is available
+    atmospheric_insights = {}
+    if fetch_air_quality:
+        atmospheric_insights = AirQualityData.analyze_atmospheric_conditions(balloons_data, {}, air_quality_data)
+    
     processed_data = {
         "balloons": balloons_data,
         "constellation": constellation_links,
-        "weather": weather_data,
+        "air_quality": air_quality_data,
         "insights": insights,
+        "atmospheric_insights": atmospheric_insights,
         "last_updated": datetime.now().isoformat(),
-        "weather_enabled": fetch_weather,
+        "air_quality_enabled": fetch_air_quality,
         "data_quality": {
             "total_balloons": len(balloons_data),
-            "weather_stations": len(weather_data),
+            "air_quality_stations": len(air_quality_data),
             "constellation_links": len(constellation_links)
         }
     }

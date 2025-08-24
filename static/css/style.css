@@ -295,8 +295,10 @@ body {
     line-height: 1;
 }
 
-/* Weather Summary */
-.weather-summary {
+
+
+/* Air Quality Summary */
+.air-quality-summary {
     background: #fff;
     border-radius: 8px;
     border: 1px solid #e0e0e0;
@@ -306,19 +308,19 @@ body {
     flex-shrink: 0;
 }
 
-.weather-header {
-    background: #e8f5e8;
+.air-quality-header {
+    background: #fff3e0;
     padding: 12px 16px;
     display: flex;
     align-items: center;
     gap: 8px;
     font-weight: 600;
-    color: #2e7d32;
+    color: #e65100;
     font-size: 1rem;
     flex-shrink: 0;
 }
 
-.weather-data {
+.air-quality-data {
     padding: 12px 16px;
     flex: 1;
     display: flex;
@@ -328,7 +330,7 @@ body {
     overflow: hidden;
 }
 
-.weather-item {
+.air-quality-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -337,19 +339,19 @@ body {
     flex: 1;
 }
 
-.weather-item:last-child {
+.air-quality-item:last-child {
     border-bottom: none;
 }
 
-.weather-label {
+.air-quality-label {
     font-size: 0.875rem;
     color: #666;
     font-weight: 500;
 }
 
-.weather-value {
+.air-quality-value {
     font-size: 0.875rem;
-    color: #1976d2;
+    color: #ff9800;
     font-weight: 600;
 }
 
@@ -399,16 +401,16 @@ body {
     background: #f44336;
 }
 
-.legend-dot.path {
-    background: #2196f3;
-}
+
 
 .legend-dot.constellation {
     background: #9c27b0;
 }
 
-.legend-dot.weather {
-    background: #4caf50;
+
+
+.legend-dot.air-quality {
+    background: #ff9800;
 }
 
 /* Right Panel */
@@ -502,12 +504,7 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.3);
 }
 
-.weather-marker {
-    background: #4caf50;
-    border: 2px solid #fff;
-    border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-}
+
 
 /* Popup Content */
 .popup-content {

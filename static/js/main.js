@@ -8,13 +8,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Global variables
     let balloonMarkers = [];
-    let pathLines = [];
     let constellationLines = [];
-    let weatherMarkers = [];
+    let airQualityMarkers = [];
     let speedChart = null;
-    let weatherChart = null;
-    let weatherEnabled = false;
-    let lastWeatherData = {};
+    let airQualityChart = null;
+    let airQualityEnabled = false;
+    let lastAirQualityData = {};
     let lastBalloonsData = [];
 
     // Initialize charts
@@ -37,8 +36,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     function loadData() {
-        const weatherParam = weatherEnabled ? '?weather=true' : '';
-        return fetch(`/api/data${weatherParam}`)
+        const params = new URLSearchParams();
+        if (airQualityEnabled) params.append('air_quality', 'true');
+        const queryString = params.toString() ? `?${params.toString()}` : '';
+        
+        return fetch(`/api/data${queryString}`)
         .then(response => response.json())
         .then(data => {
                 console.log('Data loaded:', data);
@@ -53,7 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 
                 // Store data for later use
                 lastBalloonsData = data.balloons;
-                lastWeatherData = data.weather;
+                lastAirQualityData = data.air_quality;
                 
                 // Process balloons
                 processBalloons(data.balloons);
@@ -61,14 +63,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Process constellation links
                 processConstellationLinks(data.constellation, data.balloons);
                 
-                // Process weather data
-                processWeatherData(data.weather, data.balloons);
+                // Process air quality data
+                processAirQualityData(data.air_quality, data.balloons);
                 
                 // Update insights
                 updateInsights(data.insights);
                 
-                // Update weather summary
-                updateWeatherSummary(data.weather);
+                // Update air quality summary
+                updateAirQualitySummary(data.air_quality);
                 
                 // Update charts
                 updateCharts(data);
@@ -81,30 +83,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function clearMap() {
         balloonMarkers.forEach(marker => mymap.removeLayer(marker));
-        pathLines.forEach(line => mymap.removeLayer(line));
         constellationLines.forEach(line => mymap.removeLayer(line));
-        weatherMarkers.forEach(marker => mymap.removeLayer(marker));
+        airQualityMarkers.forEach(marker => mymap.removeLayer(marker));
         
         balloonMarkers = [];
-        pathLines = [];
         constellationLines = [];
-        weatherMarkers = [];
+        airQualityMarkers = [];
     }
 
     function processBalloons(balloons) {
             balloons.forEach(balloon => {
                 const path = balloon.path;
                 if (path.length > 0) {
-                    // Draw the path as a line
-                if (document.getElementById('showPaths').checked && path.length > 1) {
-                    const line = L.polyline(path, {
-                        color: '#3498db',
-                        weight: 3,
-                        opacity: 0.7
-                    }).addTo(mymap);
-                    pathLines.push(line);
-                }
-
                     // Add a marker for the latest position
                     const latestPosition = path[0];
                     const latestVelocity = balloon.velocities[0];
@@ -115,16 +105,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 const balloonIcon = L.divIcon({
                     className: 'balloon-marker',
                     html: `<div style="
-                        width: 14px; 
-                        height: 14px; 
+                        width: 10px; 
+                        height: 10px; 
                         background: #e74c3c; 
                         border-radius: 50%; 
-                        border: 2px solid white;
-                        box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+                        border: 1.5px solid white;
+                        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
                         transform: rotate(${direction}deg);
                     "></div>`,
-                    iconSize: [14, 14],
-                    iconAnchor: [7, 7]
+                    iconSize: [10, 10],
+                    iconAnchor: [5, 5]
                 });
 
                 const marker = L.marker(latestPosition, { icon: balloonIcon }).addTo(mymap);
@@ -177,22 +167,27 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    function processWeatherData(weatherData, balloons) {
-        if (!document.getElementById('showWeather').checked) return;
+
+
+    function processAirQualityData(airQualityData, balloons) {
+        if (!document.getElementById('showAirQuality').checked) return;
         
-        Object.keys(weatherData).forEach(balloonId => {
+        Object.keys(airQualityData).forEach(balloonId => {
             const balloon = balloons[balloonId];
             if (balloon && balloon.path.length > 0) {
                 const position = balloon.path[0];
-                const weather = weatherData[balloonId];
+                const airQuality = airQualityData[balloonId];
                 
-                // Create weather icon
-                const weatherIcon = L.divIcon({
-                    className: 'weather-marker',
+                // Get AQI color based on level
+                const aqiColor = airQuality.health_impact.color;
+                
+                // Create air quality icon
+                const airQualityIcon = L.divIcon({
+                    className: 'air-quality-marker',
                     html: `<div style="
                         width: 16px; 
                         height: 16px; 
-                        background: #f39c12; 
+                        background: ${aqiColor}; 
                         border-radius: 50%; 
                         border: 2px solid white;
                         box-shadow: 0 2px 4px rgba(0,0,0,0.3);
@@ -202,59 +197,45 @@ document.addEventListener('DOMContentLoaded', function () {
                         font-size: 8px;
                         color: white;
                         font-weight: bold;
-                    ">W</div>`,
+                    ">A</div>`,
                     iconSize: [16, 16],
                     iconAnchor: [8, 8]
                 });
 
-                const marker = L.marker(position, { icon: weatherIcon }).addTo(mymap);
+                const marker = L.marker(position, { icon: airQualityIcon }).addTo(mymap);
+                
+                // Build pollutants string
+                const pollutants = Object.keys(airQuality.pollutants).map(pollutant => {
+                    const data = airQuality.pollutants[pollutant];
+                    return `${pollutant.toUpperCase()}: ${data.value} ${data.unit}`;
+                }).join('<br>');
                 
                 const popupContent = `
-                    <h3>Weather at Balloon ${balloonId}</h3>
+                    <h3>Air Quality at Balloon ${balloonId}</h3>
                     <div class="popup-item">
-                        <span class="popup-label">Temperature:</span>
-                        <span class="popup-value">${weather.temperature}°C</span>
+                        <span class="popup-label">AQI:</span>
+                        <span class="popup-value" style="color: ${aqiColor};">${airQuality.aqi}</span>
                     </div>
                     <div class="popup-item">
-                        <span class="popup-label">Feels Like:</span>
-                        <span class="popup-value">${weather.apparent_temperature}°C</span>
+                        <span class="popup-label">Level:</span>
+                        <span class="popup-value" style="color: ${aqiColor};">${airQuality.health_impact.level}</span>
                     </div>
                     <div class="popup-item">
-                        <span class="popup-label">Wind Speed:</span>
-                        <span class="popup-value">${weather.wind_speed} m/s</span>
+                        <span class="popup-label">Location:</span>
+                        <span class="popup-value">${airQuality.location}</span>
                     </div>
                     <div class="popup-item">
-                        <span class="popup-label">Wind Direction:</span>
-                        <span class="popup-value">${weather.wind_direction}°</span>
+                        <span class="popup-label">Measurements:</span>
+                        <span class="popup-value">${airQuality.measurement_count}</span>
                     </div>
-                    <div class="popup-item">
-                        <span class="popup-label">Wind Gusts:</span>
-                        <span class="popup-value">${weather.wind_gusts} m/s</span>
-                    </div>
-                    <div class="popup-item">
-                        <span class="popup-label">Pressure:</span>
-                        <span class="popup-value">${weather.pressure} hPa</span>
-                    </div>
-                    <div class="popup-item">
-                        <span class="popup-label">Humidity:</span>
-                        <span class="popup-value">${weather.humidity}%</span>
-                    </div>
-                    <div class="popup-item">
-                        <span class="popup-label">Cloud Cover:</span>
-                        <span class="popup-value">${weather.cloud_cover}%</span>
-                    </div>
-                    <div class="popup-item">
-                        <span class="popup-label">Precipitation:</span>
-                        <span class="popup-value">${weather.precipitation} mm</span>
-                    </div>
-                    <div class="popup-item">
-                        <span class="popup-label">Conditions:</span>
-                        <span class="popup-value">${weather.weather_description}</span>
+                    <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">
+                        <strong>Pollutants:</strong><br>
+                        ${pollutants}
                     </div>
                 `;
                 
                 marker.bindPopup(popupContent);
-                weatherMarkers.push(marker);
+                airQualityMarkers.push(marker);
             }
         });
     }
@@ -264,35 +245,37 @@ document.addEventListener('DOMContentLoaded', function () {
         if (insights) {
             document.getElementById('totalBalloons').textContent = insights.total_balloons || '-';
             document.getElementById('avgSpeed').textContent = insights.avg_speed ? `${insights.avg_speed.toFixed(1)} km/h` : '-';
-            document.getElementById('weatherStations').textContent = insights.weather_stations || '-';
+            document.getElementById('airQualityStations').textContent = insights.air_quality_stations || '-';
             document.getElementById('constellationLinks').textContent = insights.constellation_links || '-';
         }
     }
 
-    function updateWeatherSummary(weatherData) {
-        if (!weatherData || Object.keys(weatherData).length === 0) {
-            document.getElementById('avgTemp').textContent = '-';
-            document.getElementById('avgWind').textContent = '-';
-            document.getElementById('avgPressure').textContent = '-';
-            document.getElementById('avgHumidity').textContent = '-';
+
+
+    function updateAirQualitySummary(airQualityData) {
+        if (!airQualityData || Object.keys(airQualityData).length === 0) {
+            document.getElementById('avgAQI').textContent = '-';
+            document.getElementById('avgPM25').textContent = '-';
+            document.getElementById('avgPM10').textContent = '-';
+            document.getElementById('avgO3').textContent = '-';
             return;
         }
 
-        const weatherCount = Object.keys(weatherData).length;
-        const temperatures = Object.values(weatherData).map(w => w.temperature);
-        const windSpeeds = Object.values(weatherData).map(w => w.wind_speed);
-        const pressures = Object.values(weatherData).map(w => w.pressure);
-        const humidities = Object.values(weatherData).map(w => w.humidity);
+        const airQualityValues = Object.values(airQualityData);
+        const aqiValues = airQualityValues.map(aq => aq.aqi);
+        const pm25Values = airQualityValues.map(aq => aq.pollutants.pm25?.value || 0);
+        const pm10Values = airQualityValues.map(aq => aq.pollutants.pm10?.value || 0);
+        const o3Values = airQualityValues.map(aq => aq.pollutants.o3?.value || 0);
 
-        const avgTemp = temperatures.reduce((a, b) => a + b, 0) / temperatures.length;
-        const avgWind = windSpeeds.reduce((a, b) => a + b, 0) / windSpeeds.length;
-        const avgPressure = pressures.reduce((a, b) => a + b, 0) / pressures.length;
-        const avgHumidity = humidities.reduce((a, b) => a + b, 0) / humidities.length;
+        const avgAQI = aqiValues.reduce((a, b) => a + b, 0) / aqiValues.length;
+        const avgPM25 = pm25Values.reduce((a, b) => a + b, 0) / pm25Values.length;
+        const avgPM10 = pm10Values.reduce((a, b) => a + b, 0) / pm10Values.length;
+        const avgO3 = o3Values.reduce((a, b) => a + b, 0) / o3Values.length;
 
-        document.getElementById('avgTemp').textContent = `${avgTemp.toFixed(1)}°C`;
-        document.getElementById('avgWind').textContent = `${avgWind.toFixed(1)} m/s`;
-        document.getElementById('avgPressure').textContent = `${avgPressure.toFixed(0)} hPa`;
-        document.getElementById('avgHumidity').textContent = `${avgHumidity.toFixed(0)}%`;
+        document.getElementById('avgAQI').textContent = `${avgAQI.toFixed(0)}`;
+        document.getElementById('avgPM25').textContent = `${avgPM25.toFixed(1)} μg/m³`;
+        document.getElementById('avgPM10').textContent = `${avgPM10.toFixed(1)} μg/m³`;
+        document.getElementById('avgO3').textContent = `${avgO3.toFixed(3)} ppm`;
     }
 
     function initializeCharts() {
@@ -326,17 +309,16 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // Weather conditions chart
-        const weatherCtx = document.getElementById('weatherChart').getContext('2d');
-        weatherChart = new Chart(weatherCtx, {
-            type: 'bar',
+        // Air quality distribution chart
+        const airQualityCtx = document.getElementById('airQualityChart').getContext('2d');
+        airQualityChart = new Chart(airQualityCtx, {
+            type: 'doughnut',
             data: {
-                labels: ['Temperature (°C)', 'Wind Speed (m/s)', 'Pressure (hPa)', 'Humidity (%)'],
+                labels: ['Good', 'Moderate', 'Unhealthy for Sensitive Groups', 'Unhealthy', 'Very Unhealthy', 'Hazardous'],
                 datasets: [{
-                    label: 'Average Values',
-                    data: [0, 0, 0, 0],
-                    backgroundColor: ['#3498db', '#e74c3c', '#9b59b6', '#f39c12'],
-                    borderWidth: 1,
+                    data: [0, 0, 0, 0, 0, 0],
+                    backgroundColor: ['#00E400', '#FFFF00', '#FF7E00', '#FF0000', '#8F3F97', '#7E0023'],
+                    borderWidth: 2,
                     borderColor: '#fff'
                 }]
             },
@@ -348,18 +330,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         display: false
                     },
                     legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            font: { size: 12 }
-                        }
-                    },
-                    x: {
-                        ticks: {
+                        position: 'bottom',
+                        labels: {
                             font: { size: 10 }
                         }
                     }
@@ -378,34 +350,38 @@ document.addEventListener('DOMContentLoaded', function () {
         ];
         speedChart.update();
 
-        // Update weather chart
-        if (Object.keys(data.weather).length > 0) {
-            const weatherValues = Object.values(data.weather);
-            const avgTemp = weatherValues.reduce((sum, w) => sum + w.temperature, 0) / weatherValues.length;
-            const avgWind = weatherValues.reduce((sum, w) => sum + w.wind_speed, 0) / weatherValues.length;
-            const avgPressure = weatherValues.reduce((sum, w) => sum + w.pressure, 0) / weatherValues.length;
-            const avgHumidity = weatherValues.reduce((sum, w) => sum + w.humidity, 0) / weatherValues.length;
-
-            weatherChart.data.datasets[0].data = [avgTemp, avgWind, avgPressure / 10, avgHumidity]; // Scale pressure for better visualization
-            weatherChart.update();
+        // Update air quality chart
+        if (Object.keys(data.air_quality).length > 0) {
+            const airQualityValues = Object.values(data.air_quality);
+            const aqiDistribution = [0, 0, 0, 0, 0, 0]; // Good, Moderate, USG, Unhealthy, VU, Hazardous
+            
+            airQualityValues.forEach(aq => {
+                const aqi = aq.aqi;
+                if (aqi <= 50) aqiDistribution[0]++;
+                else if (aqi <= 100) aqiDistribution[1]++;
+                else if (aqi <= 150) aqiDistribution[2]++;
+                else if (aqi <= 200) aqiDistribution[3]++;
+                else if (aqi <= 300) aqiDistribution[4]++;
+                else aqiDistribution[5]++;
+            });
+            
+            airQualityChart.data.datasets[0].data = aqiDistribution;
+            airQualityChart.update();
         }
     }
 
     function setupControls() {
-        document.getElementById('showPaths').addEventListener('change', loadData);
         document.getElementById('showConstellation').addEventListener('change', loadData);
-        document.getElementById('showWeather').addEventListener('change', function() {
+        document.getElementById('showAirQuality').addEventListener('change', function() {
             // Only reload map display, don't fetch new data
-            processWeatherData(lastWeatherData, lastBalloonsData);
+            processAirQualityData(lastAirQualityData, lastBalloonsData);
         });
         
-        // Add weather fetch toggle
-        document.getElementById('fetchWeather').addEventListener('change', function() {
-            weatherEnabled = this.checked;
+        // Add air quality fetch toggle
+        document.getElementById('fetchAirQuality').addEventListener('change', function() {
+            airQualityEnabled = this.checked;
             loadData();
         });
-        
-
     }
 
 

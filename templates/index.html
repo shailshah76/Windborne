@@ -33,26 +33,22 @@
                     </div>
                     <div class="control-row">
                         <label class="material-checkbox">
-                            <input type="checkbox" id="showPaths" checked>
-                            <span class="checkmark"></span>
-                            <span class="label">Paths</span>
-                        </label>
-                        <label class="material-checkbox">
                             <input type="checkbox" id="showConstellation" checked>
                             <span class="checkmark"></span>
                             <span class="label">Links</span>
                         </label>
                     </div>
+
                     <div class="control-row">
                         <label class="material-checkbox">
-                            <input type="checkbox" id="showWeather" checked>
+                            <input type="checkbox" id="showAirQuality" checked>
                             <span class="checkmark"></span>
-                            <span class="label">Weather</span>
+                            <span class="label">Air Quality</span>
                         </label>
                         <label class="material-checkbox">
-                            <input type="checkbox" id="fetchWeather">
+                            <input type="checkbox" id="fetchAirQuality">
                             <span class="checkmark"></span>
-                            <span class="label">Live Weather</span>
+                            <span class="label">Live Air Quality</span>
                         </label>
                     </div>
                 </div>
@@ -77,13 +73,14 @@
                             <div class="stat-label">Avg Speed</div>
                         </div>
                     </div>
+
                     <div class="stat-card">
                         <div class="stat-icon">
-                            <i class="fas fa-cloud"></i>
+                            <i class="fas fa-smog"></i>
                         </div>
                         <div class="stat-content">
-                            <div class="stat-value" id="weatherStations">-</div>
-                            <div class="stat-label">Weather</div>
+                            <div class="stat-value" id="airQualityStations">-</div>
+                            <div class="stat-label">Air Quality</div>
                         </div>
                     </div>
                     <div class="stat-card">
@@ -97,28 +94,30 @@
                     </div>
                 </div>
 
-                <!-- Weather Summary -->
-                <div class="weather-summary" id="weatherContent">
-                    <div class="weather-header">
-                        <i class="fas fa-cloud-sun"></i>
-                        <span>Weather Summary</span>
+
+
+                <!-- Air Quality Summary -->
+                <div class="air-quality-summary" id="airQualityContent">
+                    <div class="air-quality-header">
+                        <i class="fas fa-smog"></i>
+                        <span>Air Quality Summary</span>
                     </div>
-                    <div class="weather-data">
-                        <div class="weather-item">
-                            <span class="weather-label">Temperature:</span>
-                            <span class="weather-value" id="avgTemp">-</span>
+                    <div class="air-quality-data">
+                        <div class="air-quality-item">
+                            <span class="air-quality-label">AQI:</span>
+                            <span class="air-quality-value" id="avgAQI">-</span>
                         </div>
-                        <div class="weather-item">
-                            <span class="weather-label">Wind Speed:</span>
-                            <span class="weather-value" id="avgWind">-</span>
+                        <div class="air-quality-item">
+                            <span class="air-quality-label">PM2.5:</span>
+                            <span class="air-quality-value" id="avgPM25">-</span>
                         </div>
-                        <div class="weather-item">
-                            <span class="weather-label">Pressure:</span>
-                            <span class="weather-value" id="avgPressure">-</span>
+                        <div class="air-quality-item">
+                            <span class="air-quality-label">PM10:</span>
+                            <span class="air-quality-value" id="avgPM10">-</span>
                         </div>
-                        <div class="weather-item">
-                            <span class="weather-label">Humidity:</span>
-                            <span class="weather-value" id="avgHumidity">-</span>
+                        <div class="air-quality-item">
+                            <span class="air-quality-label">O3:</span>
+                            <span class="air-quality-value" id="avgO3">-</span>
                         </div>
                     </div>
                 </div>
@@ -132,17 +131,15 @@
                         <span class="legend-dot balloon"></span>
                         <span>Balloon</span>
                     </div>
-                    <div class="legend-item">
-                        <span class="legend-dot path"></span>
-                        <span>Path</span>
-                    </div>
+
                     <div class="legend-item">
                         <span class="legend-dot constellation"></span>
                         <span>Link</span>
                     </div>
+
                     <div class="legend-item">
-                        <span class="legend-dot weather"></span>
-                        <span>Weather</span>
+                        <span class="legend-dot air-quality"></span>
+                        <span>Air Quality</span>
                     </div>
                 </div>
             </div>
@@ -157,12 +154,13 @@
                     </div>
                     <canvas id="speedChart"></canvas>
                 </div>
+
                 <div class="chart-container">
                     <div class="chart-header">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Weather Conditions</span>
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Air Quality Distribution</span>
                     </div>
-                    <canvas id="weatherChart"></canvas>
+                    <canvas id="airQualityChart"></canvas>
                 </div>
             </div>
         </div>

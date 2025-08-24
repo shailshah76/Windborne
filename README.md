@@ -1,6 +1,6 @@
 # Windborne Constellation Explorer
 
-An interactive web application that tracks real-time balloon positions from Windborne Systems' global sounding balloon constellation. Visualize balloon flight paths over 24 hours and optionally integrate weather data from Open-Meteo API to analyze how atmospheric conditions affect balloon trajectories.
+An interactive web application that tracks real-time balloon positions from Windborne Systems' global sounding balloon constellation. Visualize balloon flight paths over 24 hours and optionally integrate air quality data from OpenAQ API to analyze how atmospheric conditions affect balloon trajectories.
 
 ## 🌟 Features
 
@@ -9,45 +9,53 @@ An interactive web application that tracks real-time balloon positions from Wind
 - **24-Hour Flight History**: Tracks balloon movements over the past 24 hours with intelligent path reconstruction
 - **Interactive Map**: Visualize balloon positions, flight paths, and constellation connections on an interactive world map
 
-### Weather Integration
-- **Real-time Weather Data**: Integrates OpenWeatherMap API to provide current weather conditions at balloon locations
-- **Weather Impact Analysis**: Analyzes how atmospheric conditions affect balloon flight patterns
-- **Weather Forecasting**: Provides 5-day weather forecasts for balloon positions
+### Air Quality Integration
+- **Real-time Air Quality Data**: Integrates OpenAQ API to provide current air quality conditions at balloon locations
+- **Air Quality Index (AQI)**: Calculates EPA-standard AQI values based on PM2.5, PM10, and O3 levels
+- **Health Impact Assessment**: Provides health impact levels and descriptions for air quality conditions
+- **Pollutant Analysis**: Tracks individual pollutant levels (PM2.5, PM10, O3) with detailed measurements
 
 ### Advanced Analytics
 - **Flight Pattern Analysis**: Calculates speed distributions, geographic spread, and constellation density
-- **Weather Correlation**: Correlates balloon behavior with local weather conditions
-- **Interactive Charts**: Visual data representation with Chart.js for speed distribution and weather conditions
+- **Air Quality Impact**: Analyzes how air quality affects balloon performance and atmospheric conditions
+- **Atmospheric Insights**: Provides comprehensive atmospheric analysis based on air quality data
+- **Interactive Charts**: Visual data representation with Chart.js for speed distribution and air quality levels
 
 ### Interactive Features
 - **Material Design UI**: Clean, modern interface inspired by Google's Material Design
 - **Single-Page Layout**: All elements visible in one viewport without scrolling
-- **Dynamic Controls**: Toggle visibility of flight paths, constellation links, and weather data
-- **Weather Toggle**: Enable/disable live weather data fetching with "Fetch Live Weather" button
+- **Dynamic Controls**: Toggle visibility of flight paths, constellation links, and air quality data
+- **Air Quality Toggle**: Enable/disable live air quality data fetching with "Fetch Live Air Quality" button
 - **Speed Filtering**: Filter balloons by speed categories (low, medium, high)
 - **Real-time Updates**: Auto-refresh every 15 minutes with manual refresh option
 - **Compact Stats Cards**: Key metrics displayed with intuitive icons
-- **Improved Readability**: Better organized weather data and insights
+- **Improved Readability**: Better organized air quality data and insights
 
-## 🚀 Why Open-Meteo API?
+## 🌬️ Why OpenAQ API?
 
-I chose [Open-Meteo](https://open-meteo.com/) as the external dataset because it provides superior weather data that directly impacts balloon flight behavior. Open-Meteo offers several advantages over other weather APIs:
+I chose [OpenAQ](https://openaq.org/) as the second external dataset because air quality data provides crucial insights into atmospheric composition that affects balloon behavior and environmental monitoring. OpenAQ offers several advantages:
 
 - **No API Key Required**: Completely free for non-commercial use, no registration needed
-- **Higher Resolution**: 1-11km resolution vs other APIs' lower resolution
-- **More Frequent Updates**: Hourly updates with real-time data from national weather services
-- **Open-Source**: AGPLv3 licensed, transparent and community-driven
-- **Better Data Quality**: Partners with national weather services for accurate forecasts
-- **Comprehensive Coverage**: Global weather data with 80+ years of historical data
+- **Global Coverage**: Air quality data from over 100 countries and 10,000+ locations
+- **Real-time Data**: Live air quality measurements from government and research stations
+- **Multiple Pollutants**: PM2.5, PM10, O3, NO2, SO2, CO, and more
+- **Standardized Format**: Consistent data format across all sources
+- **Historical Data**: Access to historical air quality trends and patterns
 
-Atmospheric conditions like wind speed, direction, pressure, and temperature are crucial factors that influence balloon trajectories and flight patterns. By combining this high-quality weather data with the balloon tracking information, we can:
+Air quality affects balloon performance in several ways:
 
-- **Predict Flight Paths**: Understand how weather conditions affect balloon movement
-- **Optimize Operations**: Identify optimal weather conditions for balloon launches
-- **Safety Analysis**: Monitor weather conditions that might impact balloon operations
-- **Research Applications**: Study the relationship between atmospheric conditions and balloon behavior
+- **Atmospheric Density**: Pollutants can affect air density and balloon buoyancy
+- **Wind Patterns**: Air quality often correlates with weather patterns and wind conditions
+- **Visibility**: Poor air quality can impact balloon visibility and tracking
+- **Environmental Monitoring**: Balloons can serve as mobile air quality sensors
+- **Research Applications**: Study the relationship between air quality and atmospheric conditions
 
-This integration creates a powerful tool for atmospheric research, weather monitoring, and balloon flight optimization.
+By combining air quality data with weather and balloon tracking, we create a comprehensive atmospheric monitoring system that can:
+
+- **Environmental Research**: Study pollution dispersion patterns and atmospheric chemistry
+- **Health Impact Assessment**: Monitor air quality in areas where balloons operate
+- **Climate Studies**: Analyze the relationship between weather, air quality, and atmospheric conditions
+- **Operational Safety**: Ensure balloon operations in safe atmospheric conditions
 
 ## 🛠️ Technology Stack
 
@@ -103,32 +111,35 @@ This integration creates a powerful tool for atmospheric research, weather monit
 - **Data**: Balloon positions, timestamps, and flight history
 - **Update Frequency**: Hourly updates
 
-### Open-Meteo API
-- **Current Weather**: Real-time weather conditions at balloon locations
-- **7-Day Forecast**: Weather predictions for balloon positions
-- **Data Points**: Temperature, apparent temperature, pressure, humidity, wind speed/direction/gusts, precipitation, cloud cover, weather codes
-- **Resolution**: 1-11km high-resolution data from national weather services
+### OpenAQ API
+- **Current Air Quality**: Real-time air quality conditions at balloon locations
+- **Air Quality Index**: EPA-standard AQI calculations based on pollutant levels
+- **Data Points**: PM2.5, PM10, O3, NO2, SO2, CO, and other pollutants
+- **Health Impact**: Health impact levels and descriptions for air quality conditions
+- **Coverage**: Global air quality data from government and research stations
 
 ## 🎯 Key Insights
 
 The application provides several key insights:
 
-1. **Flight Pattern Analysis**: Understanding how balloons move across different weather conditions
-2. **Weather Impact Assessment**: Quantifying how atmospheric conditions affect balloon behavior
-3. **Constellation Optimization**: Identifying optimal weather conditions for constellation operations
-4. **Safety Monitoring**: Real-time weather monitoring for balloon operations
-5. **Research Applications**: Data for atmospheric research and weather pattern analysis
+1. **Flight Pattern Analysis**: Understanding how balloons move across different atmospheric conditions
+2. **Air Quality Impact Assessment**: Quantifying how air quality affects balloon behavior and performance
+3. **Environmental Monitoring**: Tracking air quality patterns and pollution dispersion globally
+4. **Atmospheric Research**: Comprehensive analysis of air quality and balloon behavior relationships
+5. **Constellation Optimization**: Identifying optimal atmospheric conditions for constellation operations
+6. **Safety Monitoring**: Real-time air quality monitoring for balloon operations
+7. **Climate Studies**: Data for atmospheric research, pollution studies, and environmental pattern analysis
 
 
 
 ## 📝 Notes
 
 - The Windborne API data may sometimes be corrupted or incomplete - the application handles this robustly
-- **Why Open-Meteo API?** We chose Open-Meteo because it provides free, high-resolution weather data (1-11km resolution) that directly impacts balloon flight behavior. Unlike other weather APIs that require keys and have rate limits, Open-Meteo is completely free, open-source, and provides real-time data from national weather services. This enables us to analyze how atmospheric conditions (wind speed, direction, pressure, temperature) affect balloon trajectories without any setup costs or limitations.
-- Weather data is **disabled by default** to avoid API rate limiting - use the "Fetch Live Weather" toggle to enable
+- **Why OpenAQ API?** We chose OpenAQ because it provides free, real-time air quality data from government and research stations worldwide. Air quality affects balloon behavior through atmospheric density changes, visibility impacts, and environmental monitoring capabilities. OpenAQ offers comprehensive pollutant data (PM2.5, PM10, O3, etc.) with EPA-standard AQI calculations, enabling environmental monitoring and atmospheric research without any API costs or rate limits.
+- Air quality data is **disabled by default** to avoid API rate limiting - use the "Fetch Live Air Quality" toggle to enable
 - The application automatically refreshes data every 15 minutes
-- All weather calculations use metric units for consistency
-- Weather data includes WMO weather codes for detailed condition analysis
+- All calculations use metric units for consistency
+- Air quality data includes EPA-standard AQI calculations and health impact assessments
 - Coordinate validation automatically fixes swapped latitude/longitude values from the Windborne API
 
 ## 🤝 Contributing
