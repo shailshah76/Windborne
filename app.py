@@ -1,6 +1,6 @@
 from flask import Flask, render_template, jsonify, request
 import Data
-import AirQualityData
+import AirTrafficData
 import math
 from datetime import datetime
 
@@ -141,8 +141,8 @@ def index():
 
 @app.route('/api/data')
 def get_data():
-    # Check if air quality data is requested
-    fetch_air_quality = request.args.get('air_quality', 'false').lower() == 'true'
+    # Check if air traffic data is requested
+    fetch_air_traffic = request.args.get('air_traffic', 'false').lower() == 'true'
     
     data_24h = Data.get_24h_data()
     tracks = track_balloons(data_24h)
@@ -194,28 +194,28 @@ def get_data():
                 if dist < 500: # 500 km threshold for constellation link
                     constellation_links.append([i, j])
     
-    # Get air quality data only if requested
-    air_quality_data = AirQualityData.get_air_quality_for_balloons(balloons_data, fetch_air_quality)
+    # Get air traffic data only if requested
+    aircraft_data = AirTrafficData.get_air_traffic_for_balloons(balloons_data, fetch_air_traffic)
     
     # Analyze flight patterns
     insights = analyze_flight_patterns(balloons_data)
     
-    # Analyze atmospheric conditions if air quality data is available
-    atmospheric_insights = {}
-    if fetch_air_quality:
-        atmospheric_insights = AirQualityData.analyze_atmospheric_conditions(balloons_data, {}, air_quality_data)
+    # Analyze air traffic safety if aircraft data is available
+    safety_analysis = {}
+    if fetch_air_traffic and aircraft_data:
+        safety_analysis = AirTrafficData.analyze_air_traffic_safety(balloons_data, aircraft_data)
     
     processed_data = {
         "balloons": balloons_data,
         "constellation": constellation_links,
-        "air_quality": air_quality_data,
+        "aircraft": aircraft_data,
         "insights": insights,
-        "atmospheric_insights": atmospheric_insights,
+        "safety_analysis": safety_analysis,
         "last_updated": datetime.now().isoformat(),
-        "air_quality_enabled": fetch_air_quality,
+        "air_traffic_enabled": fetch_air_traffic,
         "data_quality": {
             "total_balloons": len(balloons_data),
-            "air_quality_stations": len(air_quality_data),
+            "total_aircraft": len(aircraft_data),
             "constellation_links": len(constellation_links)
         }
     }

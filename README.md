@@ -1,61 +1,38 @@
 # Windborne Constellation Explorer
 
-An interactive web application that tracks real-time balloon positions from Windborne Systems' global sounding balloon constellation. Visualize balloon flight paths over 24 hours and optionally integrate air quality data from OpenAQ API to analyze how atmospheric conditions affect balloon trajectories.
+An interactive web application that tracks real-time balloon positions from Windborne Systems' global sounding balloon constellation. Visualize balloon flight paths over 24 hours, analyze balloon movement patterns, and monitor air traffic safety concerns.
 
 ## 🌟 Features
 
 ### Real-time Balloon Tracking
 - **Live Constellation Data**: Fetches and displays the current positions of Windborne's global sounding balloons
 - **24-Hour Flight History**: Tracks balloon movements over the past 24 hours with intelligent path reconstruction
-- **Interactive Map**: Visualize balloon positions, flight paths, and constellation connections on an interactive world map
+- **Interactive Map**: Visualize balloon positions and constellation connections on an interactive world map
 
-### Air Quality Integration
-- **Real-time Air Quality Data**: Integrates OpenAQ API to provide current air quality conditions at balloon locations
-- **Air Quality Index (AQI)**: Calculates EPA-standard AQI values based on PM2.5, PM10, and O3 levels
-- **Health Impact Assessment**: Provides health impact levels and descriptions for air quality conditions
-- **Pollutant Analysis**: Tracks individual pollutant levels (PM2.5, PM10, O3) with detailed measurements
+### Air Traffic Integration
+- **Live Aircraft Positions**: Integrates OpenSky Network API to show real-time aircraft positions
+- **Safety Analysis**: Analyzes potential safety concerns between balloons and aircraft
+- **Risk Assessment**: Classifies encounters as high, medium, or low risk based on proximity
+- **Altitude Conflict Detection**: Identifies balloons in commercial flight corridors
 
 ### Advanced Analytics
 - **Flight Pattern Analysis**: Calculates speed distributions, geographic spread, and constellation density
-- **Air Quality Impact**: Analyzes how air quality affects balloon performance and atmospheric conditions
-- **Atmospheric Insights**: Provides comprehensive atmospheric analysis based on air quality data
-- **Interactive Charts**: Visual data representation with Chart.js for speed distribution and air quality levels
+- **Movement Tracking**: Analyzes balloon movement patterns and trajectory analysis
+- **Constellation Analysis**: Studies balloon constellation connections and network topology
+- **Safety Monitoring**: Real-time analysis of balloon-aircraft proximity and collision risks
+- **Interactive Charts**: Visual data representation with Chart.js for speed distribution
 
 ### Interactive Features
 - **Material Design UI**: Clean, modern interface inspired by Google's Material Design
 - **Single-Page Layout**: All elements visible in one viewport without scrolling
-- **Dynamic Controls**: Toggle visibility of flight paths, constellation links, and air quality data
-- **Air Quality Toggle**: Enable/disable live air quality data fetching with "Fetch Live Air Quality" button
+- **Dynamic Controls**: Toggle visibility of constellation links and aircraft
+- **Air Traffic Toggle**: Enable/disable live air traffic data fetching
 - **Speed Filtering**: Filter balloons by speed categories (low, medium, high)
 - **Real-time Updates**: Auto-refresh every 15 minutes with manual refresh option
 - **Compact Stats Cards**: Key metrics displayed with intuitive icons
-- **Improved Readability**: Better organized air quality data and insights
+- **Improved Readability**: Better organized balloon data and insights
 
-## 🌬️ Why OpenAQ API?
 
-I chose [OpenAQ](https://openaq.org/) as the second external dataset because air quality data provides crucial insights into atmospheric composition that affects balloon behavior and environmental monitoring. OpenAQ offers several advantages:
-
-- **No API Key Required**: Completely free for non-commercial use, no registration needed
-- **Global Coverage**: Air quality data from over 100 countries and 10,000+ locations
-- **Real-time Data**: Live air quality measurements from government and research stations
-- **Multiple Pollutants**: PM2.5, PM10, O3, NO2, SO2, CO, and more
-- **Standardized Format**: Consistent data format across all sources
-- **Historical Data**: Access to historical air quality trends and patterns
-
-Air quality affects balloon performance in several ways:
-
-- **Atmospheric Density**: Pollutants can affect air density and balloon buoyancy
-- **Wind Patterns**: Air quality often correlates with weather patterns and wind conditions
-- **Visibility**: Poor air quality can impact balloon visibility and tracking
-- **Environmental Monitoring**: Balloons can serve as mobile air quality sensors
-- **Research Applications**: Study the relationship between air quality and atmospheric conditions
-
-By combining air quality data with weather and balloon tracking, we create a comprehensive atmospheric monitoring system that can:
-
-- **Environmental Research**: Study pollution dispersion patterns and atmospheric chemistry
-- **Health Impact Assessment**: Monitor air quality in areas where balloons operate
-- **Climate Studies**: Analyze the relationship between weather, air quality, and atmospheric conditions
-- **Operational Safety**: Ensure balloon operations in safe atmospheric conditions
 
 ## 🛠️ Technology Stack
 
@@ -111,35 +88,34 @@ By combining air quality data with weather and balloon tracking, we create a com
 - **Data**: Balloon positions, timestamps, and flight history
 - **Update Frequency**: Hourly updates
 
-### OpenAQ API
-- **Current Air Quality**: Real-time air quality conditions at balloon locations
-- **Air Quality Index**: EPA-standard AQI calculations based on pollutant levels
-- **Data Points**: PM2.5, PM10, O3, NO2, SO2, CO, and other pollutants
-- **Health Impact**: Health impact levels and descriptions for air quality conditions
-- **Coverage**: Global air quality data from government and research stations
+### OpenSky Network API
+- **Live Aircraft Positions**: Real-time aircraft tracking data
+- **Aircraft Information**: Callsign, altitude, speed, heading, country
+- **Coverage**: Global aircraft tracking from ADS-B receivers
+- **Safety Analysis**: Proximity analysis and collision risk assessment
 
 ## 🎯 Key Insights
 
 The application provides several key insights:
 
 1. **Flight Pattern Analysis**: Understanding how balloons move across different atmospheric conditions
-2. **Air Quality Impact Assessment**: Quantifying how air quality affects balloon behavior and performance
-3. **Environmental Monitoring**: Tracking air quality patterns and pollution dispersion globally
-4. **Atmospheric Research**: Comprehensive analysis of air quality and balloon behavior relationships
-5. **Constellation Optimization**: Identifying optimal atmospheric conditions for constellation operations
-6. **Safety Monitoring**: Real-time air quality monitoring for balloon operations
-7. **Climate Studies**: Data for atmospheric research, pollution studies, and environmental pattern analysis
+2. **Movement Tracking**: Quantifying balloon speed, direction, and trajectory patterns
+3. **Constellation Analysis**: Studying balloon network topology and connection patterns
+4. **Safety Monitoring**: Real-time analysis of balloon-aircraft proximity and collision risks
+5. **Altitude Conflict Detection**: Identifying balloons in commercial flight corridors
+6. **Risk Assessment**: Classifying encounters as high, medium, or low risk based on proximity
+7. **Geographic Distribution**: Analyzing balloon spread and coverage across different regions
+8. **Performance Metrics**: Tracking balloon speed distributions and operational efficiency
 
 
 
 ## 📝 Notes
 
 - The Windborne API data may sometimes be corrupted or incomplete - the application handles this robustly
-- **Why OpenAQ API?** We chose OpenAQ because it provides free, real-time air quality data from government and research stations worldwide. Air quality affects balloon behavior through atmospheric density changes, visibility impacts, and environmental monitoring capabilities. OpenAQ offers comprehensive pollutant data (PM2.5, PM10, O3, etc.) with EPA-standard AQI calculations, enabling environmental monitoring and atmospheric research without any API costs or rate limits.
-- Air quality data is **disabled by default** to avoid API rate limiting - use the "Fetch Live Air Quality" toggle to enable
+- **Why OpenSky Network API?** We chose OpenSky Network because it provides free, real-time aircraft tracking data from ADS-B receivers worldwide. This enables us to analyze potential safety concerns between balloons and aircraft, identify altitude conflicts, and monitor collision risks. The API provides comprehensive aircraft information including position, altitude, speed, and heading without requiring API keys for basic usage.
+- Air traffic data is **disabled by default** to avoid API rate limiting - use the "Live Air Traffic" toggle to enable
 - The application automatically refreshes data every 15 minutes
 - All calculations use metric units for consistency
-- Air quality data includes EPA-standard AQI calculations and health impact assessments
 - Coordinate validation automatically fixes swapped latitude/longitude values from the Windborne API
 
 ## 🤝 Contributing

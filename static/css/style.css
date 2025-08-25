@@ -297,63 +297,7 @@ body {
 
 
 
-/* Air Quality Summary */
-.air-quality-summary {
-    background: #fff;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    flex-shrink: 0;
-}
 
-.air-quality-header {
-    background: #fff3e0;
-    padding: 12px 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: 600;
-    color: #e65100;
-    font-size: 1rem;
-    flex-shrink: 0;
-}
-
-.air-quality-data {
-    padding: 12px 16px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 8px;
-    overflow: hidden;
-}
-
-.air-quality-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 4px 0;
-    min-height: 24px;
-    flex: 1;
-}
-
-.air-quality-item:last-child {
-    border-bottom: none;
-}
-
-.air-quality-label {
-    font-size: 0.875rem;
-    color: #666;
-    font-weight: 500;
-}
-
-.air-quality-value {
-    font-size: 0.875rem;
-    color: #ff9800;
-    font-weight: 600;
-}
 
 /* Map Area */
 .map-area {
@@ -407,11 +351,17 @@ body {
     background: #9c27b0;
 }
 
-
-
-.legend-dot.air-quality {
-    background: #ff9800;
+.legend-dot.aircraft {
+    background: #2196f3;
 }
+
+.legend-dot.high-risk {
+    background: #f44336;
+}
+
+
+
+
 
 /* Right Panel */
 .right-panel {
@@ -533,4 +483,176 @@ body {
 .popup-value {
     color: #333;
     font-weight: 600;
+}
+
+/* Air Traffic Summary */
+.air-traffic-summary {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.air-traffic-header {
+    background: #e3f2fd;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #1976d2;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.air-traffic-data {
+    padding: 12px 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 8px;
+    overflow: hidden;
+}
+
+.air-traffic-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 4px 0;
+    min-height: 24px;
+    flex: 1;
+}
+
+.air-traffic-item:last-child {
+    border-bottom: none;
+}
+
+.air-traffic-label {
+    font-size: 0.875rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.air-traffic-value {
+    font-size: 0.875rem;
+    color: #1976d2;
+    font-weight: 600;
+}
+
+/* Flight Analysis Container */
+.analysis-container {
+    background: #fff;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 200px;
+}
+
+.analysis-header {
+    background: #e3f2fd;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #1976d2;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+
+.analysis-content {
+    padding: 16px;
+    flex: 1;
+    overflow-y: auto;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: #333;
+}
+
+.analysis-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: #666;
+    text-align: center;
+    gap: 12px;
+}
+
+.analysis-placeholder i {
+    font-size: 2rem;
+    color: #ccc;
+}
+
+.analysis-placeholder p {
+    font-size: 0.875rem;
+    max-width: 200px;
+}
+
+.analysis-section {
+    margin-bottom: 16px;
+    padding: 12px;
+    border-radius: 6px;
+    background: #f8f9fa;
+    border-left: 4px solid #1976d2;
+}
+
+.analysis-section h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1976d2;
+    margin-bottom: 8px;
+}
+
+.analysis-section p {
+    margin-bottom: 6px;
+    font-size: 0.875rem;
+}
+
+.analysis-section .highlight {
+    font-weight: 600;
+    color: #1976d2;
+}
+
+.analysis-section .warning {
+    color: #f44336;
+    font-weight: 600;
+}
+
+.analysis-section .success {
+    color: #4caf50;
+    font-weight: 600;
+}
+
+.analysis-section .info {
+    color: #2196f3;
+    font-weight: 600;
+}
+
+.encounter-item {
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 8px;
+    margin-bottom: 8px;
+    font-size: 0.8rem;
+}
+
+.encounter-item .encounter-header {
+    font-weight: 600;
+    color: #1976d2;
+    margin-bottom: 4px;
+}
+
+.encounter-item .encounter-details {
+    color: #666;
+    font-size: 0.75rem;
 }

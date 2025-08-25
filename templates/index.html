@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="/static/css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="app-container">
@@ -37,20 +36,21 @@
                             <span class="checkmark"></span>
                             <span class="label">Links</span>
                         </label>
+                        <label class="material-checkbox">
+                            <input type="checkbox" id="showAirTraffic" checked>
+                            <span class="checkmark"></span>
+                            <span class="label">Aircraft</span>
+                        </label>
                     </div>
-
                     <div class="control-row">
                         <label class="material-checkbox">
-                            <input type="checkbox" id="showAirQuality" checked>
+                            <input type="checkbox" id="fetchAirTraffic">
                             <span class="checkmark"></span>
-                            <span class="label">Air Quality</span>
-                        </label>
-                        <label class="material-checkbox">
-                            <input type="checkbox" id="fetchAirQuality">
-                            <span class="checkmark"></span>
-                            <span class="label">Live Air Quality</span>
+                            <span class="label">Live Air Traffic</span>
                         </label>
                     </div>
+
+
                 </div>
 
                 <!-- Stats Cards -->
@@ -74,15 +74,7 @@
                         </div>
                     </div>
 
-                    <div class="stat-card">
-                        <div class="stat-icon">
-                            <i class="fas fa-smog"></i>
-                        </div>
-                        <div class="stat-content">
-                            <div class="stat-value" id="airQualityStations">-</div>
-                            <div class="stat-label">Air Quality</div>
-                        </div>
-                    </div>
+
                     <div class="stat-card">
                         <div class="stat-icon">
                             <i class="fas fa-link"></i>
@@ -92,35 +84,43 @@
                             <div class="stat-label">Links</div>
                         </div>
                     </div>
-                </div>
-
-
-
-                <!-- Air Quality Summary -->
-                <div class="air-quality-summary" id="airQualityContent">
-                    <div class="air-quality-header">
-                        <i class="fas fa-smog"></i>
-                        <span>Air Quality Summary</span>
-                    </div>
-                    <div class="air-quality-data">
-                        <div class="air-quality-item">
-                            <span class="air-quality-label">AQI:</span>
-                            <span class="air-quality-value" id="avgAQI">-</span>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-plane"></i>
                         </div>
-                        <div class="air-quality-item">
-                            <span class="air-quality-label">PM2.5:</span>
-                            <span class="air-quality-value" id="avgPM25">-</span>
-                        </div>
-                        <div class="air-quality-item">
-                            <span class="air-quality-label">PM10:</span>
-                            <span class="air-quality-value" id="avgPM10">-</span>
-                        </div>
-                        <div class="air-quality-item">
-                            <span class="air-quality-label">O3:</span>
-                            <span class="air-quality-value" id="avgO3">-</span>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalAircraft">-</div>
+                            <div class="stat-label">Aircraft</div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Air Traffic Safety Summary -->
+                <div class="air-traffic-summary" id="airTrafficContent">
+                    <div class="air-traffic-header">
+                        <i class="fas fa-plane"></i>
+                        <span>Air Traffic Safety</span>
+                    </div>
+                    <div class="air-traffic-data">
+                        <div class="air-traffic-item">
+                            <span class="air-traffic-label">High Risk:</span>
+                            <span class="air-traffic-value" id="highRiskCount">-</span>
+                        </div>
+                        <div class="air-traffic-item">
+                            <span class="air-traffic-label">Medium Risk:</span>
+                            <span class="air-traffic-value" id="mediumRiskCount">-</span>
+                        </div>
+                        <div class="air-traffic-item">
+                            <span class="air-traffic-label">Near Misses:</span>
+                            <span class="air-traffic-value" id="nearMissCount">-</span>
+                        </div>
+                        <div class="air-traffic-item">
+                            <span class="air-traffic-label">Altitude Conflicts:</span>
+                            <span class="air-traffic-value" id="altitudeConflicts">-</span>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- Map Area -->
@@ -136,31 +136,32 @@
                         <span class="legend-dot constellation"></span>
                         <span>Link</span>
                     </div>
-
                     <div class="legend-item">
-                        <span class="legend-dot air-quality"></span>
-                        <span>Air Quality</span>
+                        <span class="legend-dot aircraft"></span>
+                        <span>Aircraft</span>
                     </div>
+                    <div class="legend-item">
+                        <span class="legend-dot high-risk"></span>
+                        <span>High Risk</span>
+                    </div>
+
                 </div>
             </div>
 
             <!-- Right Panel -->
             <div class="right-panel">
-                <!-- Charts -->
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <i class="fas fa-chart-line"></i>
-                        <span>Speed Distribution</span>
+                <!-- Flight Data Analysis -->
+                <div class="analysis-container" id="flightAnalysisContent">
+                    <div class="analysis-header">
+                        <i class="fas fa-plane"></i>
+                        <span>Flight Data Analysis</span>
                     </div>
-                    <canvas id="speedChart"></canvas>
-                </div>
-
-                <div class="chart-container">
-                    <div class="chart-header">
-                        <i class="fas fa-chart-pie"></i>
-                        <span>Air Quality Distribution</span>
+                    <div class="analysis-content" id="flightAnalysisText">
+                        <div class="analysis-placeholder">
+                            <i class="fas fa-info-circle"></i>
+                            <p>Enable "Live Air Traffic" to see balloon and aircraft position comparison</p>
+                        </div>
                     </div>
-                    <canvas id="airQualityChart"></canvas>
                 </div>
             </div>
         </div>
