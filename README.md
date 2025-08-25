@@ -1,6 +1,6 @@
 # Windborne Constellation Explorer
 
-An interactive web application that tracks real-time balloon positions from Windborne Systems' global sounding balloon constellation. Visualize balloon flight paths over 24 hours, analyze balloon movement patterns, and monitor air traffic safety concerns.
+An interactive web application that tracks real-time balloon positions from Windborne Systems' global sounding balloon constellation. Visualize balloon flight paths over 24 hours, analyze balloon movement patterns, and monitor air traffic safety concerns with comprehensive position comparison and altitude analysis.
 
 ## 🌟 Features
 
@@ -8,40 +8,46 @@ An interactive web application that tracks real-time balloon positions from Wind
 - **Live Constellation Data**: Fetches and displays the current positions of Windborne's global sounding balloons
 - **24-Hour Flight History**: Tracks balloon movements over the past 24 hours with intelligent path reconstruction
 - **Interactive Map**: Visualize balloon positions and constellation connections on an interactive world map
+- **Balloon Trajectories**: Display balloon movement patterns with velocity and direction indicators
 
-### Air Traffic Integration
+### Air Traffic Integration & Safety Analysis
 - **Live Aircraft Positions**: Integrates OpenSky Network API to show real-time aircraft positions
-- **Safety Analysis**: Analyzes potential safety concerns between balloons and aircraft
-- **Risk Assessment**: Classifies encounters as high, medium, or low risk based on proximity
-- **Altitude Conflict Detection**: Identifies balloons in commercial flight corridors
+- **Comprehensive Safety Analysis**: Analyzes potential safety concerns between balloons and aircraft
+- **Position Comparison**: Detailed comparison of balloon and aircraft positions with separation distance calculations
+- **Altitude Analysis**: Monitors altitude conflicts and assesses impact of aircraft on balloon operations
+- **Risk Assessment**: Classifies encounters as high, medium, or low risk based on proximity and altitude
+- **Near Miss Detection**: Identifies critical encounters requiring immediate attention
+- **Flight Corridor Monitoring**: Detects balloons in commercial flight corridors
 
-### Advanced Analytics
+### Advanced Analytics & Insights
 - **Flight Pattern Analysis**: Calculates speed distributions, geographic spread, and constellation density
 - **Movement Tracking**: Analyzes balloon movement patterns and trajectory analysis
 - **Constellation Analysis**: Studies balloon constellation connections and network topology
 - **Safety Monitoring**: Real-time analysis of balloon-aircraft proximity and collision risks
-- **Interactive Charts**: Visual data representation with Chart.js for speed distribution
+- **Comprehensive Reporting**: Detailed text-based analysis replacing charts with actionable insights
+- **Performance Metrics**: Tracking balloon speed distributions and operational efficiency
 
 ### Interactive Features
 - **Material Design UI**: Clean, modern interface inspired by Google's Material Design
 - **Single-Page Layout**: All elements visible in one viewport without scrolling
 - **Dynamic Controls**: Toggle visibility of constellation links and aircraft
-- **Air Traffic Toggle**: Enable/disable live air traffic data fetching
-- **Speed Filtering**: Filter balloons by speed categories (low, medium, high)
+- **Air Traffic Toggle**: Enable/disable live air traffic data fetching with comprehensive analysis
 - **Real-time Updates**: Auto-refresh every 15 minutes with manual refresh option
 - **Compact Stats Cards**: Key metrics displayed with intuitive icons
-- **Improved Readability**: Better organized balloon data and insights
+- **Safety Summary Panel**: Real-time safety metrics and risk indicators
+- **Flight Data Analysis Panel**: Comprehensive text-based analysis of balloon-aircraft interactions
 
 
 
 ## 🛠️ Technology Stack
 
-- **Backend**: Python Flask
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Mapping**: Leaflet.js with OpenStreetMap
-- **Charts**: Chart.js for data visualization
-- **Weather API**: Open-Meteo API
-- **Styling**: Custom CSS with glassmorphism design
+- **Backend**: Python Flask with RESTful API endpoints
+- **Frontend**: HTML5, CSS3, JavaScript (ES6+) with modern async/await patterns
+- **Mapping**: Leaflet.js with OpenStreetMap tiles and custom markers
+- **Data Visualization**: Custom text-based analysis with real-time safety metrics
+- **Air Traffic API**: OpenSky Network API for real-time aircraft tracking
+- **Styling**: Custom CSS with Material Design principles and responsive layout
+- **Data Processing**: Real-time geospatial calculations and safety analysis algorithms
 
 ## 📦 Installation
 
@@ -75,10 +81,9 @@ An interactive web application that tracks real-time balloon positions from Wind
 ## 🔧 API Endpoints
 
 - `GET /` - Main application interface
-- `GET /api/data` - Get balloon data with weather information
-- `GET /api/weather/<balloon_id>` - Get detailed weather data for a specific balloon
-- `GET /api/insights` - Get comprehensive analytics and insights
-- `POST /contact` - Submit contact form messages
+- `GET /api/data` - Get balloon data with optional air traffic integration
+  - Query parameter: `?air_traffic=true` - Enable live aircraft data and safety analysis
+- `GET /api/data` (default) - Get balloon data without air traffic (faster response)
 
 ## 📊 Data Sources
 
@@ -87,36 +92,48 @@ An interactive web application that tracks real-time balloon positions from Wind
 - **Format**: JSON files for each hour (00.json to 23.json)
 - **Data**: Balloon positions, timestamps, and flight history
 - **Update Frequency**: Hourly updates
+- **Processing**: Intelligent path reconstruction and trajectory analysis
 
 ### OpenSky Network API
-- **Live Aircraft Positions**: Real-time aircraft tracking data
-- **Aircraft Information**: Callsign, altitude, speed, heading, country
-- **Coverage**: Global aircraft tracking from ADS-B receivers
-- **Safety Analysis**: Proximity analysis and collision risk assessment
+- **Live Aircraft Positions**: Real-time aircraft tracking data from ADS-B receivers
+- **Aircraft Information**: Callsign, altitude, speed, heading, country, vertical rate
+- **Coverage**: Global aircraft tracking with comprehensive safety analysis
+- **Safety Analysis**: Proximity analysis, collision risk assessment, and altitude conflict detection
+- **Fallback**: Mock data generation when API is unavailable for demonstration
 
 ## 🎯 Key Insights
 
-The application provides several key insights:
+The application provides comprehensive insights for balloon operations and safety:
 
+### Balloon Operations
 1. **Flight Pattern Analysis**: Understanding how balloons move across different atmospheric conditions
 2. **Movement Tracking**: Quantifying balloon speed, direction, and trajectory patterns
 3. **Constellation Analysis**: Studying balloon network topology and connection patterns
-4. **Safety Monitoring**: Real-time analysis of balloon-aircraft proximity and collision risks
-5. **Altitude Conflict Detection**: Identifying balloons in commercial flight corridors
-6. **Risk Assessment**: Classifying encounters as high, medium, or low risk based on proximity
-7. **Geographic Distribution**: Analyzing balloon spread and coverage across different regions
-8. **Performance Metrics**: Tracking balloon speed distributions and operational efficiency
+4. **Geographic Distribution**: Analyzing balloon spread and coverage across different regions
+5. **Performance Metrics**: Tracking balloon speed distributions and operational efficiency
+
+### Safety & Air Traffic
+6. **Real-time Safety Monitoring**: Analysis of balloon-aircraft proximity and collision risks
+7. **Position Comparison**: Detailed comparison of balloon and aircraft positions with separation calculations
+8. **Altitude Analysis**: Monitoring altitude conflicts and assessing aircraft impact on balloon operations
+9. **Risk Assessment**: Classifying encounters as high, medium, or low risk based on proximity and altitude
+10. **Near Miss Detection**: Identifying critical encounters requiring immediate attention
+11. **Flight Corridor Monitoring**: Detecting balloons in commercial flight corridors
+12. **Safety Zone Violations**: Tracking violations of established safety separation distances
 
 
 
 ## 📝 Notes
 
 - The Windborne API data may sometimes be corrupted or incomplete - the application handles this robustly
-- **Why OpenSky Network API?** We chose OpenSky Network because it provides free, real-time aircraft tracking data from ADS-B receivers worldwide. This enables us to analyze potential safety concerns between balloons and aircraft, identify altitude conflicts, and monitor collision risks. The API provides comprehensive aircraft information including position, altitude, speed, and heading without requiring API keys for basic usage.
-- Air traffic data is **disabled by default** to avoid API rate limiting - use the "Live Air Traffic" toggle to enable
-- The application automatically refreshes data every 15 minutes
-- All calculations use metric units for consistency
-- Coordinate validation automatically fixes swapped latitude/longitude values from the Windborne API
+- **Air Traffic Integration**: The application integrates OpenSky Network API for real-time aircraft tracking data from ADS-B receivers worldwide. This enables comprehensive safety analysis between balloons and aircraft, including altitude conflict detection and collision risk assessment. The API provides detailed aircraft information including position, altitude, speed, and heading.
+- **Safety Analysis**: The system uses established aviation safety standards with 5km horizontal and 300m vertical separation distances for safety zone calculations.
+- **Live Air Traffic**: Air traffic data is **disabled by default** to avoid API rate limiting - use the "Live Air Traffic" toggle to enable comprehensive analysis
+- **Mock Data**: When the OpenSky API is unavailable, the system generates realistic mock aircraft data for demonstration purposes
+- **Real-time Updates**: The application automatically refreshes data every 15 minutes with manual refresh capability
+- **Units**: All calculations use metric units for consistency
+- **Data Processing**: Coordinate validation automatically fixes swapped latitude/longitude values from the Windborne API
+- **Analysis Panel**: The right panel now displays comprehensive text-based analysis instead of charts, providing detailed insights into balloon-aircraft interactions
 
 ## 🤝 Contributing
 
