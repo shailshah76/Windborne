@@ -1,0 +1,11 @@
+{
+  "career_application": {
+    "name": "Your name",
+    "email": "Your email",
+    "role": "Flight Team Web Developer",
+    "notes": "Specialized in real-time data visualization and safety analysis systems. Built a comprehensive balloon tracking and air traffic monitoring application using Flask, JavaScript, and Leaflet.js. Demonstrated expertise in API integration (OpenSky Network), geospatial data processing, and safety-critical systems. Collaborated effectively to implement complex features including real-time aircraft tracking, safety analysis algorithms, and interactive mapping solutions. Strong focus on user experience and data-driven decision making for flight operations.",
+    "submission_url": "https://github.com/yourusername/windborne-constellation-explorer",
+    "portfolio_url": "https://github.com/yourusername/windborne-constellation-explorer",
+    "resume_url": "https://your-resume-url.com"
+  }
+}
