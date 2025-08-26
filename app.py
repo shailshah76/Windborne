@@ -146,21 +146,45 @@ def analyze_flight_patterns(balloons_data):
 
 @app.route('/')
 def index():
+    print(f"[DEBUG] Root route accessed at {datetime.now()}")
     return render_template('index.html')
+
+@app.route('/debug')
+def debug_info():
+    return jsonify({
+        "app_running": True,
+        "timestamp": datetime.now().isoformat(),
+        "routes": ["/", "/health", "/test", "/api/data", "/debug"]
+    }), 200
 
 @app.route('/health')
 def health_check():
     return jsonify({"status": "healthy", "timestamp": datetime.now().isoformat()}), 200
 
+@app.route('/test')
+def test_endpoint():
+    return jsonify({
+        "message": "Test endpoint working",
+        "timestamp": datetime.now().isoformat(),
+        "environment": "production"
+    }), 200
+
 @app.route('/api/data')
 def get_data():
     try:
+        print(f"[DEBUG] Starting /api/data request at {datetime.now()}")
+        
         # Check if air traffic data is requested
         fetch_air_traffic = request.args.get('air_traffic', 'false').lower() == 'true'
+        print(f"[DEBUG] Air traffic enabled: {fetch_air_traffic}")
         
         # Add timeout for data fetching
+        print("[DEBUG] Fetching 24h data...")
         data_24h = Data.get_24h_data()
+        print(f"[DEBUG] Data fetched, hours available: {len(data_24h) if data_24h else 0}")
+        
         if not data_24h:
+            print("[DEBUG] No data available, returning empty response")
             return jsonify({
                 "error": "Unable to fetch balloon data",
                 "balloons": [],
@@ -173,7 +197,9 @@ def get_data():
                 "data_quality": {"total_balloons": 0, "total_aircraft": 0, "constellation_links": 0}
             }), 200
         
+        print("[DEBUG] Tracking balloons...")
         tracks = track_balloons(data_24h)
+        print(f"[DEBUG] Found {len(tracks)} balloon tracks")
 
         balloons_data = []
         for i, track in enumerate(tracks):
@@ -223,16 +249,21 @@ def get_data():
                         constellation_links.append([i, j])
         
         # Get air traffic data only if requested
+        print("[DEBUG] Getting air traffic data...")
         aircraft_data = AirTrafficData.get_air_traffic_for_balloons(balloons_data, fetch_air_traffic)
+        print(f"[DEBUG] Found {len(aircraft_data)} aircraft")
         
         # Analyze flight patterns
+        print("[DEBUG] Analyzing flight patterns...")
         insights = analyze_flight_patterns(balloons_data)
         
         # Analyze air traffic safety if aircraft data is available
         safety_analysis = {}
         if fetch_air_traffic and aircraft_data:
+            print("[DEBUG] Analyzing air traffic safety...")
             safety_analysis = AirTrafficData.analyze_air_traffic_safety(balloons_data, aircraft_data)
         
+        print("[DEBUG] Preparing response...")
         processed_data = {
             "balloons": balloons_data,
             "constellation": constellation_links,
@@ -248,6 +279,7 @@ def get_data():
             }
         }
 
+        print(f"[DEBUG] Response ready: {len(balloons_data)} balloons, {len(aircraft_data)} aircraft")
         return jsonify(processed_data)
         
     except Exception as e:
@@ -268,7 +300,17 @@ def get_data():
 
 
 
+# Add 404 error handler
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({
+        "error": "Route not found",
+        "available_routes": ["/", "/health", "/test", "/api/data", "/debug"],
+        "timestamp": datetime.now().isoformat()
+    }), 404
+
 if __name__ == '__main__':
     # Get port from environment variable (for production) or use 5001 for development
     port = int(os.environ.get('PORT', 5001))
+    print(f"[DEBUG] Starting Flask app on port {port}")
     app.run(debug=False, host='0.0.0.0', port=port)
