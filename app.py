@@ -250,8 +250,15 @@ def get_data():
         
         # Get air traffic data only if requested
         print("[DEBUG] Getting air traffic data...")
-        aircraft_data = AirTrafficData.get_air_traffic_for_balloons(balloons_data, fetch_air_traffic)
-        print(f"[DEBUG] Found {len(aircraft_data)} aircraft")
+        print(f"[DEBUG] fetch_air_traffic parameter: {fetch_air_traffic}")
+        print(f"[DEBUG] Number of balloons for air traffic analysis: {len(balloons_data)}")
+        
+        try:
+            aircraft_data = AirTrafficData.get_air_traffic_for_balloons(balloons_data, fetch_air_traffic)
+            print(f"[DEBUG] Air traffic data fetched successfully: {len(aircraft_data)} aircraft")
+        except Exception as e:
+            print(f"[DEBUG] Error fetching air traffic data: {str(e)}")
+            aircraft_data = []
         
         # Analyze flight patterns
         print("[DEBUG] Analyzing flight patterns...")

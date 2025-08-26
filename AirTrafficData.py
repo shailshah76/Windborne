@@ -14,6 +14,7 @@ class AirTrafficDataCollector:
     
     def get_aircraft_in_area(self, lat_min, lat_max, lon_min, lon_max, altitude_min=0, altitude_max=50000):
         """Get aircraft positions in a specific area using OpenSky Network API"""
+        print(f"[API_DEBUG] Getting aircraft in area: lat({lat_min:.2f}, {lat_max:.2f}), lon({lon_min:.2f}, {lon_max:.2f})")
         try:
             url = f"{self.base_url}/states/all"
             params = {
@@ -23,20 +24,26 @@ class AirTrafficDataCollector:
                 'lomax': lon_max,
                 'time': int(datetime.now().timestamp())
             }
+            print(f"[API_DEBUG] API URL: {url}")
+            print(f"[API_DEBUG] API params: {params}")
             
             # Use basic authentication if credentials are provided
             auth = None
             if self.username and self.password:
                 auth = (self.username, self.password)
             
+            print(f"[API_DEBUG] Making API request...")
             response = requests.get(url, params=params, auth=auth, timeout=10)
+            print(f"[API_DEBUG] API response status: {response.status_code}")
             response.raise_for_status()
             
             data = response.json()
             states = data.get('states', [])
+            print(f"[API_DEBUG] API returned {len(states)} aircraft states")
             
             if not states:
-                return []
+                print("[API_DEBUG] No aircraft states returned, using mock data")
+                return self._create_mock_aircraft_data(lat_min, lat_max, lon_min, lon_max)
             
             # Filter and process aircraft data
             aircraft_list = []
@@ -49,7 +56,8 @@ class AirTrafficDataCollector:
             return aircraft_list
             
         except Exception as e:
-            print(f"OpenSky API error: {e}")
+            print(f"[API_DEBUG] OpenSky API error: {e}")
+            print(f"[API_DEBUG] Using mock data as fallback")
             # Return mock data for demonstration
             return self._create_mock_aircraft_data(lat_min, lat_max, lon_min, lon_max)
     
@@ -250,13 +258,19 @@ class AirTrafficDataCollector:
 
 def get_air_traffic_for_balloons(balloons_data, fetch_air_traffic=False):
     """Main function to get air traffic data for balloon areas"""
+    print(f"[AIR_TRAFFIC_DEBUG] fetch_air_traffic: {fetch_air_traffic}")
+    print(f"[AIR_TRAFFIC_DEBUG] balloons_data length: {len(balloons_data)}")
+    
     if not fetch_air_traffic:
+        print("[AIR_TRAFFIC_DEBUG] Air traffic disabled, returning empty list")
         return []
     
+    print("[AIR_TRAFFIC_DEBUG] Creating AirTrafficDataCollector...")
     collector = AirTrafficDataCollector()
     
     # Calculate bounding box for all balloons
     if not balloons_data:
+        print("[AIR_TRAFFIC_DEBUG] No balloons data, returning empty list")
         return []
     
     latitudes = []
@@ -268,7 +282,10 @@ def get_air_traffic_for_balloons(balloons_data, fetch_air_traffic=False):
             latitudes.append(pos[0])
             longitudes.append(pos[1])
     
+    print(f"[AIR_TRAFFIC_DEBUG] Found {len(latitudes)} valid balloon positions")
+    
     if not latitudes or not longitudes:
+        print("[AIR_TRAFFIC_DEBUG] No valid positions, returning empty list")
         return []
     
     # Add some buffer around the balloon area
@@ -277,8 +294,12 @@ def get_air_traffic_for_balloons(balloons_data, fetch_air_traffic=False):
     lon_min = min(longitudes) - 1.0
     lon_max = max(longitudes) + 1.0
     
+    print(f"[AIR_TRAFFIC_DEBUG] Bounding box: lat({lat_min:.2f}, {lat_max:.2f}), lon({lon_min:.2f}, {lon_max:.2f})")
+    
     # Get aircraft in the area
+    print("[AIR_TRAFFIC_DEBUG] Calling get_aircraft_in_area...")
     aircraft_data = collector.get_aircraft_in_area(lat_min, lat_max, lon_min, lon_max)
+    print(f"[AIR_TRAFFIC_DEBUG] Aircraft data returned: {len(aircraft_data)} aircraft")
     
     return aircraft_data
 
