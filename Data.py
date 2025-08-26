@@ -79,11 +79,6 @@ def get_24h_data():
         if data is not None:
             all_data[i] = data
             successful_fetches += 1
-            print(f"Hour {hour_str}: {len(data) if isinstance(data, list) else 'data'} records")
-        else:
-            print(f"Failed to fetch data for hour {hour_str}")
-    
-    print(f"Successfully fetched data for {successful_fetches}/6 recent hours")
     
     # Return data even if some hours failed
     return all_data

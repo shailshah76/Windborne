@@ -11,8 +11,10 @@ app = Flask(__name__)
 data_cache = {
     'balloons_data': None,
     'aircraft_data': None,
+    'aircraft_cache_time': None,
     'last_updated': None,
-    'cache_duration': timedelta(minutes=5)  # Cache for 5 minutes
+    'cache_duration': timedelta(minutes=5),  # Cache for 5 minutes
+    'aircraft_cache_duration': timedelta(minutes=2)  # Aircraft cache for 2 minutes
 }
 
 # Add CORS headers for cross-origin requests
@@ -33,7 +35,14 @@ def clear_cache():
     """Clear the data cache"""
     data_cache['balloons_data'] = None
     data_cache['aircraft_data'] = None
+    data_cache['aircraft_cache_time'] = None
     data_cache['last_updated'] = None
+
+def is_aircraft_cache_valid():
+    """Check if aircraft cache is still valid"""
+    if data_cache['aircraft_cache_time'] is None:
+        return False
+    return datetime.now() - data_cache['aircraft_cache_time'] < data_cache['aircraft_cache_duration']
 
 def haversine(lon1, lat1, lon2, lat2):
     R = 6371  # Radius of Earth in kilometers
@@ -58,10 +67,11 @@ def track_balloons(data_24h):
     if not data_24h or 0 not in data_24h:
         return []
 
-    # Initialize tracks with the most recent data
+    # Initialize tracks with the most recent data (hour 0)
     for balloon_data in data_24h[0]:
         tracks.append([balloon_data])
 
+    # Process hours 1-23 as in original algorithm
     for h in range(1, 24):
         if h not in data_24h:
             continue
@@ -88,12 +98,13 @@ def track_balloons(data_24h):
                     min_dist = dist
                     closest_balloon_index = i
 
-            if min_dist < 300: # Threshold distance: 300 km/h for one hour
+            # Use original distance threshold to preserve data integrity
+            if min_dist < 300: # Original threshold: 300 km/h for one hour
                 matched_balloon = unmatched_balloons_current_hour.pop(closest_balloon_index)
                 track.append(matched_balloon)
                 new_tracks.append(track)
             else:
-                # If no match found, we keep the track as is, it will not be extended
+                # If no match found, we keep the track as is
                 new_tracks.append(track)
 
         # The remaining unmatched balloons are new tracks
@@ -166,109 +177,35 @@ def analyze_flight_patterns(balloons_data):
 
 @app.route('/')
 def index():
-    print(f"[DEBUG] Root route accessed at {datetime.now()}")
     return render_template('index.html')
 
-@app.route('/debug')
-def debug_info():
-    return jsonify({
-        "app_running": True,
-        "timestamp": datetime.now().isoformat(),
-        "cache_valid": is_cache_valid(),
-        "cache_last_updated": data_cache['last_updated'].isoformat() if data_cache['last_updated'] else None,
-        "routes": ["/", "/health", "/test", "/api/data", "/debug", "/clear-cache"]
-    }), 200
 
-@app.route('/clear-cache')
-def clear_cache_endpoint():
-    clear_cache()
-    return jsonify({
-        "message": "Cache cleared",
-        "timestamp": datetime.now().isoformat()
-    }), 200
+
+
 
 @app.route('/health')
 def health_check():
     return jsonify({"status": "healthy", "timestamp": datetime.now().isoformat()}), 200
 
-@app.route('/test')
-def test_endpoint():
-    return jsonify({
-        "message": "Test endpoint working",
-        "timestamp": datetime.now().isoformat(),
-        "environment": "production"
-    }), 200
-
-@app.route('/test-air-traffic')
-def test_air_traffic():
-    """Test endpoint with air traffic enabled"""
-    try:
-        # Force air traffic to be enabled
-        fetch_air_traffic = True
-        
-        # Get some sample balloon data for testing
-        data_24h = Data.get_24h_data()
-        if data_24h and len(data_24h) > 0:
-            tracks = track_balloons(data_24h)
-            
-            # Create minimal balloon data for testing
-            balloons_data = []
-            for i, track in enumerate(tracks[:5]):  # Only first 5 tracks
-                if track and len(track) > 0:
-                    balloons_data.append({
-                        "id": i,
-                        "path": [[track[0][0], track[0][1]]] if track else [],
-                        "velocities": [[0, 0]]
-                    })
-            
-            # Test air traffic
-            aircraft_data = AirTrafficData.get_air_traffic_for_balloons(balloons_data, True)
-            
-            return jsonify({
-                "message": "Air traffic test",
-                "balloons_count": len(balloons_data),
-                "aircraft_count": len(aircraft_data),
-                "aircraft_sample": aircraft_data[:3] if aircraft_data else [],
-                "timestamp": datetime.now().isoformat()
-            }), 200
-        else:
-            return jsonify({
-                "message": "No balloon data available for testing",
-                "timestamp": datetime.now().isoformat()
-            }), 200
-            
-    except Exception as e:
-        return jsonify({
-            "error": f"Air traffic test failed: {str(e)}",
-            "timestamp": datetime.now().isoformat()
-        }), 500
-
 @app.route('/api/data')
 def get_data():
     try:
-        print(f"[DEBUG] Starting /api/data request at {datetime.now()}")
-        
         # Check if air traffic data is requested
         fetch_air_traffic = request.args.get('air_traffic', 'false').lower() == 'true'
         force_refresh = request.args.get('refresh', 'false').lower() == 'true'
-        print(f"[DEBUG] Air traffic enabled: {fetch_air_traffic}, Force refresh: {force_refresh}")
         
         # Check cache first (unless force refresh is requested)
         if not force_refresh and is_cache_valid():
-            print("[DEBUG] Using cached data")
             cached_data = data_cache['balloons_data'].copy()
             cached_data['air_traffic_enabled'] = fetch_air_traffic
             cached_data['last_updated'] = data_cache['last_updated'].isoformat()
             return jsonify(cached_data)
         
         # Fetch new data
-        print("[DEBUG] Fetching fresh data...")
         data_24h = Data.get_24h_data()
-        print(f"[DEBUG] Data fetched, hours available: {len(data_24h) if data_24h else 0}")
         
         # Continue even if some data is missing
         if not data_24h or len(data_24h) == 0:
-            print("[DEBUG] No data available, returning empty response")
             return jsonify({
                 "error": "Unable to fetch balloon data",
                 "balloons": [],
@@ -281,10 +218,7 @@ def get_data():
                 "data_quality": {"total_balloons": 0, "total_aircraft": 0, "constellation_links": 0}
             }), 200
         
-        print("[DEBUG] Tracking balloons...")
-        print(f"[DEBUG] Available hours: {list(data_24h.keys())}")
         tracks = track_balloons(data_24h)
-        print(f"[DEBUG] Found {len(tracks)} balloon tracks")
 
         balloons_data = []
         for i, track in enumerate(tracks):
@@ -334,28 +268,29 @@ def get_data():
                         constellation_links.append([i, j])
         
         # Get air traffic data only if requested
-        print("[DEBUG] Getting air traffic data...")
-        print(f"[DEBUG] fetch_air_traffic parameter: {fetch_air_traffic}")
-        print(f"[DEBUG] Number of balloons for air traffic analysis: {len(balloons_data)}")
-        
-        try:
-            aircraft_data = AirTrafficData.get_air_traffic_for_balloons(balloons_data, fetch_air_traffic)
-            print(f"[DEBUG] Air traffic data fetched successfully: {len(aircraft_data)} aircraft")
-        except Exception as e:
-            print(f"[DEBUG] Error fetching air traffic data: {str(e)}")
+        # Check aircraft cache first
+        if fetch_air_traffic and is_aircraft_cache_valid():
+            aircraft_data = data_cache['aircraft_data']
+        elif fetch_air_traffic:
+            try:
+                aircraft_data = AirTrafficData.get_air_traffic_for_balloons(balloons_data, fetch_air_traffic)
+                
+                # Cache the aircraft data
+                data_cache['aircraft_data'] = aircraft_data
+                data_cache['aircraft_cache_time'] = datetime.now()
+            except Exception as e:
+                aircraft_data = []
+        else:
             aircraft_data = []
         
         # Analyze flight patterns
-        print("[DEBUG] Analyzing flight patterns...")
         insights = analyze_flight_patterns(balloons_data)
         
         # Analyze air traffic safety if aircraft data is available
         safety_analysis = {}
         if fetch_air_traffic and aircraft_data:
-            print("[DEBUG] Analyzing air traffic safety...")
             safety_analysis = AirTrafficData.analyze_air_traffic_safety(balloons_data, aircraft_data)
         
-        print("[DEBUG] Preparing response...")
         processed_data = {
             "balloons": balloons_data,
             "constellation": constellation_links,
@@ -376,7 +311,6 @@ def get_data():
         data_cache['aircraft_data'] = aircraft_data
         data_cache['last_updated'] = datetime.now()
 
-        print(f"[DEBUG] Response ready: {len(balloons_data)} balloons, {len(aircraft_data)} aircraft")
         return jsonify(processed_data)
         
     except Exception as e:
@@ -409,5 +343,4 @@ def not_found(error):
 if __name__ == '__main__':
     # Get port from environment variable (for production) or use 5001 for development
     port = int(os.environ.get('PORT', 5001))
-    print(f"[DEBUG] Starting Flask app on port {port}")
     app.run(debug=False, host='0.0.0.0', port=port)
