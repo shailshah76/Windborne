@@ -2,6 +2,7 @@ from flask import Flask, render_template, jsonify, request
 import Data
 import AirTrafficData
 import math
+import os
 from datetime import datetime
 
 app = Flask(__name__)
@@ -227,4 +228,6 @@ def get_data():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    # Get port from environment variable (for production) or use 5001 for development
+    port = int(os.environ.get('PORT', 5001))
+    app.run(debug=False, host='0.0.0.0', port=port)
