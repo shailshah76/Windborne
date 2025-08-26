@@ -3,9 +3,17 @@ import Data
 import AirTrafficData
 import math
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
+
+# Global cache for data
+data_cache = {
+    'balloons_data': None,
+    'aircraft_data': None,
+    'last_updated': None,
+    'cache_duration': timedelta(minutes=5)  # Cache for 5 minutes
+}
 
 # Add CORS headers for cross-origin requests
 @app.after_request
@@ -14,6 +22,18 @@ def after_request(response):
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
     response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
     return response
+
+def is_cache_valid():
+    """Check if cached data is still valid"""
+    if data_cache['last_updated'] is None:
+        return False
+    return datetime.now() - data_cache['last_updated'] < data_cache['cache_duration']
+
+def clear_cache():
+    """Clear the data cache"""
+    data_cache['balloons_data'] = None
+    data_cache['aircraft_data'] = None
+    data_cache['last_updated'] = None
 
 def haversine(lon1, lat1, lon2, lat2):
     R = 6371  # Radius of Earth in kilometers
@@ -154,7 +174,17 @@ def debug_info():
     return jsonify({
         "app_running": True,
         "timestamp": datetime.now().isoformat(),
-        "routes": ["/", "/health", "/test", "/api/data", "/debug"]
+        "cache_valid": is_cache_valid(),
+        "cache_last_updated": data_cache['last_updated'].isoformat() if data_cache['last_updated'] else None,
+        "routes": ["/", "/health", "/test", "/api/data", "/debug", "/clear-cache"]
+    }), 200
+
+@app.route('/clear-cache')
+def clear_cache_endpoint():
+    clear_cache()
+    return jsonify({
+        "message": "Cache cleared",
+        "timestamp": datetime.now().isoformat()
     }), 200
 
 @app.route('/health')
@@ -220,10 +250,19 @@ def get_data():
         
         # Check if air traffic data is requested
         fetch_air_traffic = request.args.get('air_traffic', 'false').lower() == 'true'
-        print(f"[DEBUG] Air traffic enabled: {fetch_air_traffic}")
+        force_refresh = request.args.get('refresh', 'false').lower() == 'true'
+        print(f"[DEBUG] Air traffic enabled: {fetch_air_traffic}, Force refresh: {force_refresh}")
         
-        # Add timeout for data fetching
-        print("[DEBUG] Fetching 24h data...")
+        # Check cache first (unless force refresh is requested)
+        if not force_refresh and is_cache_valid():
+            print("[DEBUG] Using cached data")
+            cached_data = data_cache['balloons_data'].copy()
+            cached_data['air_traffic_enabled'] = fetch_air_traffic
+            cached_data['last_updated'] = data_cache['last_updated'].isoformat()
+            return jsonify(cached_data)
+        
+        # Fetch new data
+        print("[DEBUG] Fetching fresh data...")
         data_24h = Data.get_24h_data()
         print(f"[DEBUG] Data fetched, hours available: {len(data_24h) if data_24h else 0}")
         
@@ -331,6 +370,11 @@ def get_data():
                 "constellation_links": len(constellation_links)
             }
         }
+
+        # Cache the processed data
+        data_cache['balloons_data'] = processed_data
+        data_cache['aircraft_data'] = aircraft_data
+        data_cache['last_updated'] = datetime.now()
 
         print(f"[DEBUG] Response ready: {len(balloons_data)} balloons, {len(aircraft_data)} aircraft")
         return jsonify(processed_data)

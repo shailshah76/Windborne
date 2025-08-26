@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let airTrafficEnabled = false;
     let lastAircraftData = [];
     let lastBalloonsData = [];
+    let lastConstellationData = [];
 
     // Load initial data
     loadData();
@@ -20,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Set up refresh button
     document.getElementById('refreshBtn').addEventListener('click', function() {
         this.classList.add('loading');
-        loadData().finally(() => {
+        loadData(true).finally(() => {  // Force refresh when button is clicked
             this.classList.remove('loading');
         });
     });
@@ -30,9 +31,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-    function loadData() {
+    function loadData(forceRefresh = false) {
         const params = new URLSearchParams();
         if (airTrafficEnabled) params.append('air_traffic', 'true');
+        if (forceRefresh) params.append('refresh', 'true');
         const queryString = params.toString() ? `?${params.toString()}` : '';
         
         return fetch(`/api/data${queryString}`)
@@ -51,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Store data for later use
                 lastBalloonsData = data.balloons;
                 lastAircraftData = data.aircraft;
+                lastConstellationData = data.constellation;
                 
                 // Process balloons
                 processBalloons(data.balloons);
@@ -454,7 +457,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function setupControls() {
-        document.getElementById('showConstellation').addEventListener('change', loadData);
+        document.getElementById('showConstellation').addEventListener('change', function() {
+            // Only reload map display, don't fetch new data
+            processConstellationLinks(lastConstellationData, lastBalloonsData);
+        });
+        
         document.getElementById('showAirTraffic').addEventListener('change', function() {
             // Only reload map display, don't fetch new data
             processAirTrafficData(lastAircraftData, {});
@@ -463,7 +470,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // Add air traffic fetch toggle
         document.getElementById('fetchAirTraffic').addEventListener('change', function() {
             airTrafficEnabled = this.checked;
-            loadData();
+            loadData(true);  // Force refresh when toggling air traffic
         });
     }
 

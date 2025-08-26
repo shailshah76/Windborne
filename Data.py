@@ -1,5 +1,6 @@
 import requests as req
 import json
+from datetime import datetime
 
 def parse_data(data_string):
     # Clean the data
@@ -67,7 +68,11 @@ def get_24h_data():
     all_data = {}
     successful_fetches = 0
     
-    for i in range(24):
+    # Only fetch the most recent 6 hours to reduce API calls
+    current_hour = datetime.now().hour
+    hours_to_fetch = [(current_hour - i) % 24 for i in range(6)]
+    
+    for i in hours_to_fetch:
         hour_str = f"{i:02}"
         url = f"https://a.windbornesystems.com/treasure/{hour_str}.json"
         data = fetch_data(url)
@@ -78,7 +83,7 @@ def get_24h_data():
         else:
             print(f"Failed to fetch data for hour {hour_str}")
     
-    print(f"Successfully fetched data for {successful_fetches}/24 hours")
+    print(f"Successfully fetched data for {successful_fetches}/6 recent hours")
     
     # Return data even if some hours failed
     return all_data
