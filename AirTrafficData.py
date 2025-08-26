@@ -42,8 +42,8 @@ class AirTrafficDataCollector:
             print(f"[API_DEBUG] API returned {len(states)} aircraft states")
             
             if not states:
-                print("[API_DEBUG] No aircraft states returned, using mock data")
-                return self._create_mock_aircraft_data(lat_min, lat_max, lon_min, lon_max)
+                print("[API_DEBUG] No aircraft states returned from OpenSky API")
+                return []
             
             # Filter and process aircraft data
             aircraft_list = []
@@ -57,9 +57,8 @@ class AirTrafficDataCollector:
             
         except Exception as e:
             print(f"[API_DEBUG] OpenSky API error: {e}")
-            print(f"[API_DEBUG] Using mock data as fallback")
-            # Return mock data for demonstration
-            return self._create_mock_aircraft_data(lat_min, lat_max, lon_min, lon_max)
+            print(f"[API_DEBUG] Returning empty aircraft list")
+            return []
     
     def _parse_aircraft_state(self, state):
         """Parse aircraft state data from OpenSky API response"""
@@ -102,47 +101,7 @@ class AirTrafficDataCollector:
         
         return altitude_min <= altitude <= altitude_max
     
-    def _create_mock_aircraft_data(self, lat_min, lat_max, lon_min, lon_max):
-        """Create mock aircraft data for demonstration when API is unavailable"""
-        import random
-        
-        aircraft_list = []
-        num_aircraft = random.randint(3, 8)  # Random number of aircraft
-        
-        for i in range(num_aircraft):
-            # Generate random position within the area
-            lat = random.uniform(lat_min, lat_max)
-            lon = random.uniform(lon_min, lon_max)
-            
-            # Generate realistic aircraft data
-            altitude = random.randint(3000, 12000)  # 3-12 km altitude
-            velocity = random.uniform(150, 250)  # 150-250 m/s (typical cruising speed)
-            track = random.uniform(0, 360)  # Random heading
-            
-            aircraft = {
-                'icao24': f"mock{i:06x}",
-                'callsign': f"DEMO{i:03d}",
-                'origin_country': 'Demo',
-                'time_position': int(datetime.now().timestamp()),
-                'time_velocity': int(datetime.now().timestamp()),
-                'longitude': lon,
-                'latitude': lat,
-                'altitude': altitude,
-                'on_ground': False,
-                'velocity': velocity,
-                'true_track': track,
-                'vertical_rate': random.uniform(-10, 10),
-                'sensors': [],
-                'geo_altitude': altitude,
-                'squawk': f"{random.randint(1000, 7777)}",
-                'spi': False,
-                'position_source': 0,
-                'is_mock_data': True
-            }
-            
-            aircraft_list.append(aircraft)
-        
-        return aircraft_list
+
     
     def analyze_safety_concerns(self, balloons_data, aircraft_data):
         """Analyze potential safety concerns between balloons and aircraft"""

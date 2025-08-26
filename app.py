@@ -169,6 +169,50 @@ def test_endpoint():
         "environment": "production"
     }), 200
 
+@app.route('/test-air-traffic')
+def test_air_traffic():
+    """Test endpoint with air traffic enabled"""
+    try:
+        # Force air traffic to be enabled
+        fetch_air_traffic = True
+        
+        # Get some sample balloon data for testing
+        data_24h = Data.get_24h_data()
+        if data_24h and len(data_24h) > 0:
+            tracks = track_balloons(data_24h)
+            
+            # Create minimal balloon data for testing
+            balloons_data = []
+            for i, track in enumerate(tracks[:5]):  # Only first 5 tracks
+                if track and len(track) > 0:
+                    balloons_data.append({
+                        "id": i,
+                        "path": [[track[0][0], track[0][1]]] if track else [],
+                        "velocities": [[0, 0]]
+                    })
+            
+            # Test air traffic
+            aircraft_data = AirTrafficData.get_air_traffic_for_balloons(balloons_data, True)
+            
+            return jsonify({
+                "message": "Air traffic test",
+                "balloons_count": len(balloons_data),
+                "aircraft_count": len(aircraft_data),
+                "aircraft_sample": aircraft_data[:3] if aircraft_data else [],
+                "timestamp": datetime.now().isoformat()
+            }), 200
+        else:
+            return jsonify({
+                "message": "No balloon data available for testing",
+                "timestamp": datetime.now().isoformat()
+            }), 200
+            
+    except Exception as e:
+        return jsonify({
+            "error": f"Air traffic test failed: {str(e)}",
+            "timestamp": datetime.now().isoformat()
+        }), 500
+
 @app.route('/api/data')
 def get_data():
     try:
@@ -183,7 +227,8 @@ def get_data():
         data_24h = Data.get_24h_data()
         print(f"[DEBUG] Data fetched, hours available: {len(data_24h) if data_24h else 0}")
         
-        if not data_24h:
+        # Continue even if some data is missing
+        if not data_24h or len(data_24h) == 0:
             print("[DEBUG] No data available, returning empty response")
             return jsonify({
                 "error": "Unable to fetch balloon data",
@@ -198,6 +243,7 @@ def get_data():
             }), 200
         
         print("[DEBUG] Tracking balloons...")
+        print(f"[DEBUG] Available hours: {list(data_24h.keys())}")
         tracks = track_balloons(data_24h)
         print(f"[DEBUG] Found {len(tracks)} balloon tracks")
 

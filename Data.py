@@ -47,11 +47,15 @@ def fetch_data(url):
     try:
         # Add timeout to prevent hanging requests
         response = req.get(url, timeout=10)
-        response.raise_for_status() # Raise an exception for bad status codes
+        
+        # Don't raise exception for 404s, just return None
+        if response.status_code == 404:
+            return None
+            
+        response.raise_for_status() # Raise an exception for other bad status codes
         
         # Check if response looks like HTML (error page)
         if response.text.strip().startswith('<html'):
-            # print(f"Got HTML error page instead of JSON: {url}")
             return None
             
         return parse_data(response.text)
@@ -61,12 +65,22 @@ def fetch_data(url):
 
 def get_24h_data():
     all_data = {}
+    successful_fetches = 0
+    
     for i in range(24):
         hour_str = f"{i:02}"
         url = f"https://a.windbornesystems.com/treasure/{hour_str}.json"
         data = fetch_data(url)
         if data is not None:
             all_data[i] = data
+            successful_fetches += 1
+            print(f"Hour {hour_str}: {len(data) if isinstance(data, list) else 'data'} records")
+        else:
+            print(f"Failed to fetch data for hour {hour_str}")
+    
+    print(f"Successfully fetched data for {successful_fetches}/24 hours")
+    
+    # Return data even if some hours failed
     return all_data
 
 if __name__ == '__main__':
