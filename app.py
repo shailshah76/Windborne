@@ -7,6 +7,14 @@ from datetime import datetime
 
 app = Flask(__name__)
 
+# Add CORS headers for cross-origin requests
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
+
 def haversine(lon1, lat1, lon2, lat2):
     R = 6371  # Radius of Earth in kilometers
     dLat = math.radians(lat2 - lat1)
@@ -140,13 +148,32 @@ def analyze_flight_patterns(balloons_data):
 def index():
     return render_template('index.html')
 
+@app.route('/health')
+def health_check():
+    return jsonify({"status": "healthy", "timestamp": datetime.now().isoformat()}), 200
+
 @app.route('/api/data')
 def get_data():
-    # Check if air traffic data is requested
-    fetch_air_traffic = request.args.get('air_traffic', 'false').lower() == 'true'
-    
-    data_24h = Data.get_24h_data()
-    tracks = track_balloons(data_24h)
+    try:
+        # Check if air traffic data is requested
+        fetch_air_traffic = request.args.get('air_traffic', 'false').lower() == 'true'
+        
+        # Add timeout for data fetching
+        data_24h = Data.get_24h_data()
+        if not data_24h:
+            return jsonify({
+                "error": "Unable to fetch balloon data",
+                "balloons": [],
+                "constellation": [],
+                "aircraft": [],
+                "insights": {},
+                "safety_analysis": {},
+                "last_updated": datetime.now().isoformat(),
+                "air_traffic_enabled": fetch_air_traffic,
+                "data_quality": {"total_balloons": 0, "total_aircraft": 0, "constellation_links": 0}
+            }), 200
+        
+        tracks = track_balloons(data_24h)
 
     balloons_data = []
     for i, track in enumerate(tracks):
@@ -206,22 +233,36 @@ def get_data():
     if fetch_air_traffic and aircraft_data:
         safety_analysis = AirTrafficData.analyze_air_traffic_safety(balloons_data, aircraft_data)
     
-    processed_data = {
-        "balloons": balloons_data,
-        "constellation": constellation_links,
-        "aircraft": aircraft_data,
-        "insights": insights,
-        "safety_analysis": safety_analysis,
-        "last_updated": datetime.now().isoformat(),
-        "air_traffic_enabled": fetch_air_traffic,
-        "data_quality": {
-            "total_balloons": len(balloons_data),
-            "total_aircraft": len(aircraft_data),
-            "constellation_links": len(constellation_links)
+        processed_data = {
+            "balloons": balloons_data,
+            "constellation": constellation_links,
+            "aircraft": aircraft_data,
+            "insights": insights,
+            "safety_analysis": safety_analysis,
+            "last_updated": datetime.now().isoformat(),
+            "air_traffic_enabled": fetch_air_traffic,
+            "data_quality": {
+                "total_balloons": len(balloons_data),
+                "total_aircraft": len(aircraft_data),
+                "constellation_links": len(constellation_links)
+            }
         }
-    }
 
-    return jsonify(processed_data)
+        return jsonify(processed_data)
+        
+    except Exception as e:
+        print(f"Error in /api/data: {str(e)}")
+        return jsonify({
+            "error": "Internal server error",
+            "balloons": [],
+            "constellation": [],
+            "aircraft": [],
+            "insights": {},
+            "safety_analysis": {},
+            "last_updated": datetime.now().isoformat(),
+            "air_traffic_enabled": fetch_air_traffic,
+            "data_quality": {"total_balloons": 0, "total_aircraft": 0, "constellation_links": 0}
+        }), 500
 
 
 

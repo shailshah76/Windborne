@@ -45,7 +45,8 @@ def parse_data(data_string):
 
 def fetch_data(url):
     try:
-        response = req.get(url)
+        # Add timeout to prevent hanging requests
+        response = req.get(url, timeout=10)
         response.raise_for_status() # Raise an exception for bad status codes
         
         # Check if response looks like HTML (error page)
