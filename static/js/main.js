@@ -257,20 +257,83 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateFlightAnalysis(data) {
         const analysisContainer = document.getElementById('flightAnalysisText');
         
-        // Check if air traffic data is available
-        if (!data.air_traffic_enabled || !data.aircraft || data.aircraft.length === 0) {
+        // Always show balloon analysis, with air traffic if enabled
+        if (!data.balloons || data.balloons.length === 0) {
             analysisContainer.innerHTML = `
                 <div class="analysis-placeholder">
                     <i class="fas fa-info-circle"></i>
-                    <p>Enable "Live Air Traffic" to see balloon and aircraft position comparison</p>
+                    <p>No balloon data available</p>
                 </div>
             `;
+            return;
+        }
+        
+        // Check if air traffic data is available
+        if (!data.air_traffic_enabled || !data.aircraft || data.aircraft.length === 0) {
+            // Show balloon-only analysis
+            const analysis = generateBalloonAnalysis(data);
+            analysisContainer.innerHTML = analysis;
             return;
         }
         
         // Generate analysis text
         const analysis = generateFlightAnalysis(data);
         analysisContainer.innerHTML = analysis;
+    }
+    
+    function generateBalloonAnalysis(data) {
+        const balloons = data.balloons || [];
+        const insights = data.insights || {};
+        
+        let analysisHTML = '';
+        
+        // Overview section
+        analysisHTML += `
+            <div class="analysis-section">
+                <h3>Balloon Overview</h3>
+                <p><span class="highlight">${balloons.length}</span> balloons detected in the area</p>
+                <p><span class="highlight">${insights.active_balloons || 0}</span> balloons with active tracking</p>
+                <p><span class="highlight">${insights.avg_speed ? insights.avg_speed.toFixed(1) : 0}</span> km/h average speed</p>
+            </div>
+        `;
+        
+        // Speed analysis section
+        if (insights.speed_distribution) {
+            analysisHTML += `
+                <div class="analysis-section">
+                    <h3>Speed Distribution</h3>
+                    <p>Low speed (< 50 km/h): <span class="info">${insights.speed_distribution.low || 0}</span> balloons</p>
+                    <p>Medium speed (50-150 km/h): <span class="info">${insights.speed_distribution.medium || 0}</span> balloons</p>
+                    <p>High speed (> 150 km/h): <span class="info">${insights.speed_distribution.high || 0}</span> balloons</p>
+                </div>
+            `;
+        }
+        
+        // Geographic spread section
+        if (insights.geographic_spread) {
+            analysisHTML += `
+                <div class="analysis-section">
+                    <h3>Geographic Spread</h3>
+                    <p>Northern hemisphere: <span class="info">${insights.geographic_spread.north || 0}</span> balloons</p>
+                    <p>Southern hemisphere: <span class="info">${insights.geographic_spread.south || 0}</span> balloons</p>
+                    <p>Eastern hemisphere: <span class="info">${insights.geographic_spread.east || 0}</span> balloons</p>
+                    <p>Western hemisphere: <span class="info">${insights.geographic_spread.west || 0}</span> balloons</p>
+                </div>
+            `;
+        }
+        
+        // Constellation analysis section
+        if (data.constellation && data.constellation.length > 0) {
+            analysisHTML += `
+                <div class="analysis-section">
+                    <h3>Constellation Analysis</h3>
+                    <p><span class="highlight">${data.constellation.length}</span> constellation links detected</p>
+                    <p>Balloons within 500km of each other</p>
+                </div>
+            `;
+        }
+        
+        return analysisHTML;
     }
     
     function generateFlightAnalysis(data) {
