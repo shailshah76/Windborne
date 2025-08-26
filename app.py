@@ -175,64 +175,64 @@ def get_data():
         
         tracks = track_balloons(data_24h)
 
-    balloons_data = []
-    for i, track in enumerate(tracks):
-        path = []
-        velocities = []
-        for j in range(len(track) - 1):
-            current_point = track[j]
-            previous_point = track[j+1]
+        balloons_data = []
+        for i, track in enumerate(tracks):
+            path = []
+            velocities = []
+            for j in range(len(track) - 1):
+                current_point = track[j]
+                previous_point = track[j+1]
 
-            # Note: Windborne API format is [lat, lon, alt]
-            lat1, lon1 = current_point[0], current_point[1]
-            lat2, lon2 = previous_point[0], previous_point[1]
+                # Note: Windborne API format is [lat, lon, alt]
+                lat1, lon1 = current_point[0], current_point[1]
+                lat2, lon2 = previous_point[0], previous_point[1]
 
-            path.append([lat1, lon1])
+                path.append([lat1, lon1])
 
-            distance = haversine(lon1, lat1, lon2, lat2)
-            speed = distance
-            direction = calculate_bearing(lon2, lat2, lon1, lat1)
-            velocities.append([speed, direction])
+                distance = haversine(lon1, lat1, lon2, lat2)
+                speed = distance
+                direction = calculate_bearing(lon2, lat2, lon1, lat1)
+                velocities.append([speed, direction])
+            
+            if track:
+                last_point = track[-1]
+                path.append([last_point[0], last_point[1]])  # [lat, lon]
+                velocities.append([0, 0])
+
+            balloons_data.append({
+                "id": i,
+                "path": path,
+                "velocities": velocities
+            })
+
+        constellation_links = []
+        latest_positions = []
+        for balloon in balloons_data:
+            if balloon['path']:
+                latest_positions.append(balloon['path'][0])
+            else:
+                latest_positions.append(None)
+
+        for i in range(len(latest_positions)):
+            for j in range(i + 1, len(latest_positions)):
+                pos_i = latest_positions[i]
+                pos_j = latest_positions[j]
+                if pos_i and pos_j:
+                    dist = haversine(pos_i[1], pos_i[0], pos_j[1], pos_j[0])
+                    if dist < 500: # 500 km threshold for constellation link
+                        constellation_links.append([i, j])
         
-        if track:
-            last_point = track[-1]
-            path.append([last_point[0], last_point[1]])  # [lat, lon]
-            velocities.append([0, 0])
-
-        balloons_data.append({
-            "id": i,
-            "path": path,
-            "velocities": velocities
-        })
-
-    constellation_links = []
-    latest_positions = []
-    for balloon in balloons_data:
-        if balloon['path']:
-            latest_positions.append(balloon['path'][0])
-        else:
-            latest_positions.append(None)
-
-    for i in range(len(latest_positions)):
-        for j in range(i + 1, len(latest_positions)):
-            pos_i = latest_positions[i]
-            pos_j = latest_positions[j]
-            if pos_i and pos_j:
-                dist = haversine(pos_i[1], pos_i[0], pos_j[1], pos_j[0])
-                if dist < 500: # 500 km threshold for constellation link
-                    constellation_links.append([i, j])
-    
-    # Get air traffic data only if requested
-    aircraft_data = AirTrafficData.get_air_traffic_for_balloons(balloons_data, fetch_air_traffic)
-    
-    # Analyze flight patterns
-    insights = analyze_flight_patterns(balloons_data)
-    
-    # Analyze air traffic safety if aircraft data is available
-    safety_analysis = {}
-    if fetch_air_traffic and aircraft_data:
-        safety_analysis = AirTrafficData.analyze_air_traffic_safety(balloons_data, aircraft_data)
-    
+        # Get air traffic data only if requested
+        aircraft_data = AirTrafficData.get_air_traffic_for_balloons(balloons_data, fetch_air_traffic)
+        
+        # Analyze flight patterns
+        insights = analyze_flight_patterns(balloons_data)
+        
+        # Analyze air traffic safety if aircraft data is available
+        safety_analysis = {}
+        if fetch_air_traffic and aircraft_data:
+            safety_analysis = AirTrafficData.analyze_air_traffic_safety(balloons_data, aircraft_data)
+        
         processed_data = {
             "balloons": balloons_data,
             "constellation": constellation_links,
